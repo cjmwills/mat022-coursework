@@ -1,0 +1,51 @@
+---
+title: "EDA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(GDAdata)
+
+decathlon_data <- as_tibble(Decathlon)
+```
+
+## Shape
+
+The `decathlon` dataset has `r nrow(decathlon_data)` rows and `r ncol(decathlon_data)` columns. The data records the performance of decathletes over the period from 1986 to 2006. 
+
+## Variables
+
+```{r}
+glimpse(decathlon_data)
+```
+
+The `Totalpoints` variable determines the winner of the decathlon.
+
+```{r}
+summary_totalpoints <- summary(decathlon_data$Totalpoints)
+print(summary_totalpoints)
+ggplot(decathlon_data) + geom_histogram(aes(Totalpoints), bins = 15)
+```
+
+The average points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. This is known as a positive skew, where we see fewer and more extreme values on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+
+The remaining variables can be broadly split into three groups;
+
+1. `DecathleteName`, `Nationality`, and `yearEvent` all provide additional information about the athlete and the event they took part in.
+2. `m100` to `m1500` represent a measure of performance in each of the 10 events. The units are relevant to the activity e.g. metres, seconds.
+3. `P100m` to `P1500` represent the number of points the athlete scores for each of the 10 events.
+
+## Points by Event
+
+Boxplot to show the distribution of points scores in each of the 10 events:
+
+```{r}
+points_by_event <- 
+  gather(select(decathlon_data, P100m:P1500), event, points)
+
+ggplot(points_by_event) + geom_boxplot(aes(event, points), outlier.shape = NA)
+```
+
