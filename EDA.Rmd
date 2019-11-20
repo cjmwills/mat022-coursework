@@ -6,8 +6,9 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-library(tidyverse)
 library(GDAdata)
+library(tidyverse)
+library(scales)
 
 # ensure consistent column names are used for each event with either a s_* or p_* prefix representing score (in whichever unit the event is measured in) and points (a standardised measure across the events). This can then be used to transform the data to tidy form. 
 colnames(Decathlon) <- 
@@ -47,6 +48,8 @@ All variable names have been updated to use `snake_case` notation.
 glimpse(Decathlon)
 ```
 
+## Total Points
+
 The `total_points` variable determines the winner of the decathlon.
 
 ```{r}
@@ -55,7 +58,8 @@ print(summary_totalpoints)
 ggplot(Decathlon) + geom_histogram(aes(total_points), bins = 15)
 ```
 
-The average points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. This is known as a positive skew, where we see fewer and more extreme values on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. This is known as a positive skew, where we see fewer and more extreme values on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+
 
 The remaining variables can be broadly split into three groups;
 
@@ -63,13 +67,64 @@ The remaining variables can be broadly split into three groups;
 2. `s_100m` to `s_1500m` represent the score of performance in each of the 10 events. The units are relevant to the activity e.g. metres, seconds.
 3. `p_100m` to `p_1500m` represent the number of points the athlete scores for each of the 10 events.
 
+## Points
+
+The distribution of the `points` variable, the number of points scored in individual events, shows a slightly different distribution to the `total_points` variable. This ditribution is much nearer a normal distribution, potentially with a slight negative skew.
+
+```{r}
+ggplot(decathlon_data) +
+  geom_histogram(aes(points), bins = 20)
+```
+
+
 ## Points by Event
 
-Boxplot to show the distribution of points scores in each of the 10 events:
+Boxplot to show the distribution of points scored in each of the 10 events. The red dotted line shows the median across all 10 events.
 
 ```{r}
 ggplot(decathlon_data) + 
   geom_boxplot(aes(event, points), outlier.shape = NA) +
-  coord_flip()
+  coord_flip() +
+  geom_hline(yintercept = median(decathlon_data$points),
+             colour = "red", linetype = "dotted", size = 1)
 ```
 
+## Total Points by Nationality
+
+There are `r nlevels(decathlon_data$nationality)` different countries recorded in the `decathlon` dataset. Let's take a look at the relative size and success of these countries.
+
+Starting with the top 10 countries by total combined points scored in all decathlons:
+
+```{r}
+decathlon_data %>% 
+  group_by(nationality) %>%
+  summarise(total_points = sum(total_points)) %>%
+  arrange(desc(total_points)) %>%
+  mutate(total_points = total_points / 1000000) %>% 
+  slice(1:10) %>% 
+  ggplot() +
+  geom_col(aes(x = reorder(nationality, desc(total_points)),
+               y = total_points)) +
+  labs(x = "", y = "Total points (millions)")
+```
+
+This isn't too useful, as the USA have nearly twice as many decathletes than the next ranking country, Germany. So lets view by average total points scored in all decathlons:
+
+```{r}
+avg_points_by_country <- 
+  decathlon_data %>% 
+  group_by(nationality) %>%
+  summarise(avg_total_points = mean(total_points)) %>%
+  arrange(desc(avg_total_points)) %>%
+  slice(1:10)
+
+  ggplot(avg_points_by_country,
+         aes(x = reorder(nationality, desc(avg_total_points)),
+             y = avg_total_points)) +
+  geom_col() +
+  labs(x = "", y = "Avg total points")
+```
+
+This isn't too interesting to look at! But it looks like Jamaica are the most succesful country with an average points tally of `r round(avg_points_by_country[[1, 2]], 2)`. 
+
+**Next steps: Points gained over time (are decathletes getting better), Read in country codes and look at performance by continent? (potentially exploring ANOVA between continents)**
