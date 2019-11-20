@@ -9,43 +9,67 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(GDAdata)
 
-decathlon_data <- as_tibble(Decathlon)
+# ensure consistent column names are used for each event with either a s_* or p_* prefix representing score (in whichever unit the event is measured in) and points (a standardised measure across the events). This can then be used to transform the data to tidy form. 
+colnames(Decathlon) <- 
+  c("total_points", "name", "nationality",
+    "s_100m", "s_long_jump", "s_shotput",
+    "s_high_jump", "s_400m", "s_110m_hurdles",
+    "s_discus", "s_polevault", "s_javelin",
+    "s_1500m",
+    "year",
+    "p_100m", "p_long_jump", "p_shotput",
+    "p_high_jump", "p_400m", "p_110m_hurdles",
+    "p_discus", "p_polevault", "p_javelin",
+    "p_1500m")
+
+# create tidy version of decathlon data
+decathlon_data <- 
+  as_tibble(Decathlon) %>% 
+  select(total_points:nationality, year, everything()) %>% 
+  gather(event, result,
+       -(total_points:year)) %>% 
+  mutate(type_of_result = 
+           case_when(str_detect(event, "s_") ~ "score",
+                     str_detect(event, "p_") ~ "points"),
+         event = str_sub(event, 3)) %>% 
+  spread(type_of_result, result)
 ```
 
 ## Shape
 
-The `decathlon` dataset has `r nrow(decathlon_data)` rows and `r ncol(decathlon_data)` columns. The data records the performance of decathletes over the period from 1986 to 2006. 
+The `decathlon` dataset has `r nrow(Decathlon)` rows and `r ncol(Decathlon)` columns. The data records the performance of decathletes over the period from 1986 to 2006. 
 
 ## Variables
 
+All variable names have been updated to use `snake_case` notation.
+
 ```{r}
-glimpse(decathlon_data)
+glimpse(Decathlon)
 ```
 
-The `Totalpoints` variable determines the winner of the decathlon.
+The `total_points` variable determines the winner of the decathlon.
 
 ```{r}
-summary_totalpoints <- summary(decathlon_data$Totalpoints)
+summary_totalpoints <- summary(Decathlon$total_points)
 print(summary_totalpoints)
-ggplot(decathlon_data) + geom_histogram(aes(Totalpoints), bins = 15)
+ggplot(Decathlon) + geom_histogram(aes(total_points), bins = 15)
 ```
 
 The average points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. This is known as a positive skew, where we see fewer and more extreme values on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
 
 The remaining variables can be broadly split into three groups;
 
-1. `DecathleteName`, `Nationality`, and `yearEvent` all provide additional information about the athlete and the event they took part in.
-2. `m100` to `m1500` represent a measure of performance in each of the 10 events. The units are relevant to the activity e.g. metres, seconds.
-3. `P100m` to `P1500` represent the number of points the athlete scores for each of the 10 events.
+1. `name`, `nationality`, and `year` all provide additional information about the athlete and the event they took part in.
+2. `s_100m` to `s_1500m` represent the score of performance in each of the 10 events. The units are relevant to the activity e.g. metres, seconds.
+3. `p_100m` to `p_1500m` represent the number of points the athlete scores for each of the 10 events.
 
 ## Points by Event
 
 Boxplot to show the distribution of points scores in each of the 10 events:
 
 ```{r}
-points_by_event <- 
-  gather(select(decathlon_data, P100m:P1500), event, points)
-
-ggplot(points_by_event) + geom_boxplot(aes(event, points), outlier.shape = NA)
+ggplot(decathlon_data) + 
+  geom_boxplot(aes(event, points), outlier.shape = NA) +
+  coord_flip()
 ```
 
