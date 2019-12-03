@@ -1,5 +1,4 @@
 ---
-title: "Hypothesis Testing"
 output: html_document
 ---
 
@@ -45,11 +44,11 @@ decathlon_data <-
 
 # read in olympic data for comparison
 olympic_data <- 
-  read_csv('data/results.csv') %>% 
+  read_csv('data/olympic_track_and_field') %>% 
   clean_names()
 
 # function to output a tibble of results for olympians and decathletes. This can be used to perform a t-test.
-events_to_compare <- function(olympic_event, decathlon_event){
+events_to_compare <- function(olympic_event, decathlon_event, tail){
   # result of professional athletes
   professional <- 
     olympic_data %>% 
@@ -91,7 +90,7 @@ events_to_compare <- function(olympic_event, decathlon_event){
   tt_output <- 
     t.test(result ~ athlete_type,
            data = combined_df,
-           alternative = 'less',
+           alternative = tail,
            var.equal = TRUE)
   
   return(list(combined_df,
@@ -100,6 +99,24 @@ events_to_compare <- function(olympic_event, decathlon_event){
               tt_output))
 }
 ```
+
+```{r out.width='20%', out.height='20%', fig.align='center'}
+knitr::include_graphics("jim_thorpe.jpg")
+```
+
+<center>
+<font size='5'>
+"You, sir, are the greatest athlete in the world" 
+</font>
+</center>
+
+\  
+
+King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe at the 1912 olympic games in Stockholm. A bold statement maybe, but can you argue with his logic? Thorpe had proven himself to be the best athlete across ten different sports. It's harder to be great at ten things than one, therefore he must be the best athlete in the world. In this paper we will investigate if decathletes can lay stake to this claim, which continent produces the best decathletes, and ...
+
+## Introduction
+
+The decathlon dataset records the performance of decathletes between 1986 to 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes.
 
 ### Step 1 - Define the hypothesis
 
@@ -119,7 +136,7 @@ We're going to perform a one-tailed, two-sample t-test using the convential 5% s
 Let's check these two assumptions hold true for our data. To check for normality, a simple Q-Q (Quantile-Quantile) plot can be used.
 
 ```{r fig.width=4, fig.show='hold'}
-hundred_m <- events_to_compare('100M Men', '100m')
+hundred_m <- events_to_compare('100M Men', '100m', 'greater')
 
 qqnorm(y = filter(hundred_m[[1]], athlete_type == 'professional')$result)
 qqline(filter(hundred_m[[1]], athlete_type == 'professional')$result,
@@ -136,7 +153,7 @@ $H_0: \sigma_D^2 = \sigma_P^2$ (Variances **are** equal between samples)
 
 $H_1: \sigma_D^2 \neq \sigma_P^2$ (Variances **are** not equal between samples)
 
-Where significance level $\alpha = 0.05$
+Using $\alpha = 0.05$ and the classical Levene's procedure whereby the distance from the mean, rather than median, is used in the calculation. As discussed by Brown and Forsythe (1974, pp. 364-367), the mean is a good choice when you have symmetric and moderately tailed distributions and when the underlying shape of the distribution is known.
 
 ```{r}
 hundred_m[[3]]
@@ -156,7 +173,16 @@ The resulting p-value is far smaller than our significance level (0.05). This me
 
 So can we conclude that King Gustav was wrong when he declared Jim Thorpe the "greatest athlete in the world"? Well, sprinting is just one area of the decathlon, so let's perform a similar test for two completely different decathlon events; high jump (jumping) and discus (throwing).
 
+The high jump and discus satisfy the same assumptions as above and yield the following mean, standard deviation, and sample size.
 
+```{r}
+discus <- events_to_compare('Discus Throw Men', 'discus', 'less')
+high_jump <- events_to_compare('High Jump Men', 'high_jump', 'less')
+discus[[2]]
+high_jump[[2]]
+```
+
+Using the same hypothesis and significance level as above, it turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantasic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
 
 
 
