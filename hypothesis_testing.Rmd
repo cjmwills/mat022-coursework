@@ -116,7 +116,24 @@ King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe a
 
 ## Introduction
 
-The decathlon dataset records the performance of decathletes between 1986 to 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes.
+```{r}
+summary_totalpoints <- summary(Decathlon$total_points)
+```
+
+The decathlon dataset records the performance of decathletes between 1986 to 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes. The points and result for each of the ten events is given and the total points column indicates their performance across all events. The person with the highest total points after the ten events is crowned the winner. The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. This is known as a positive skew, where we see more extreme values on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+
+```{r fig.width=6, fig.height=4}
+print(summary_totalpoints)
+ggplot(Decathlon) + 
+  geom_histogram(aes(total_points), bins = 15) +
+  labs(x = 'Total Points', y = 'Count')
+```
+
+## Decathletes vs Olympic Medalists
+
+Jack of all trades or master of none? 
+
+**continue here to discuss why extra dataset was brought in and the limitations of it ie different number of observations, different time frames, only medalists included. Then introduce the t-test, what it is used for, and why we are using it here.**
 
 ### Step 1 - Define the hypothesis
 
