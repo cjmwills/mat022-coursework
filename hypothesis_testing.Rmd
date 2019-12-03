@@ -1,0 +1,167 @@
+---
+title: "Hypothesis Testing"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(dplyr)
+library(tibble)
+library(ggplot2)
+library(readr)
+library(stringr)
+library(tidyr)
+library(scales)
+library(janitor)
+library(GDAdata)
+library(EnvStats)
+library(lawstat)
+
+# ensure consistent column names are used for each event with either a r_* or p_* prefix representing result (in whichever unit the event is measured in) and points (a standardised measure across the events). This can then be used to transform the data to tidy form. 
+colnames(Decathlon) <- 
+  c("total_points", "name", "nationality",
+    "r_100m", "r_long_jump", "r_shotput",
+    "r_high_jump", "r_400m", "r_110m_hurdles",
+    "r_discus", "r_polevault", "r_javelin",
+    "r_1500m",
+    "year",
+    "p_100m", "p_long_jump", "p_shotput",
+    "p_high_jump", "p_400m", "p_110m_hurdles",
+    "p_discus", "p_polevault", "p_javelin",
+    "p_1500m")
+
+# create tidy version of decathlon data
+decathlon_data <- 
+  as_tibble(Decathlon) %>% 
+  select(total_points:nationality, year, everything()) %>% 
+  gather(event, result,
+       -(total_points:year)) %>% 
+  mutate(type_of_result = 
+           case_when(str_detect(event, "r_") ~ "result",
+                     str_detect(event, "p_") ~ "points"),
+         event = str_sub(event, 3)) %>% 
+  spread(type_of_result, result)
+
+# read in olympic data for comparison
+olympic_data <- 
+  read_csv('data/results.csv') %>% 
+  clean_names()
+
+# function to output a tibble of results for olympians and decathletes. This can be used to perform a t-test.
+events_to_compare <- function(olympic_event, decathlon_event){
+  # result of professional athletes
+  professional <- 
+    olympic_data %>% 
+    filter(year >= 1984,
+           year <= 2008,
+           event == olympic_event) %>% 
+    select(result) %>% 
+    add_column(athlete_type = 'professional',
+               .before = 1)
+  professional$result <- as.numeric(professional$result)
+  
+  # result of decathletes
+  decathlete <-
+    decathlon_data %>% 
+    filter(event == decathlon_event) %>% 
+    group_by(year) %>% 
+    top_n(3, result) %>% 
+    ungroup() %>% 
+    select(result) %>% 
+    add_column(athlete_type = 'decathlete',
+               .before = 1)
+  
+  # combine into single tibble
+  combined_df <- bind_rows(professional, decathlete)
+  combined_df$athlete_type <- as.factor(combined_df$athlete_type)
+  
+  descriptives <- 
+    combined_df %>% 
+    group_by(athlete_type) %>% 
+    summarise(mean = mean(result, na.rm = TRUE),
+              sd = sd(result),
+              n = n())
+
+  lv_output <- 
+    levene.test(y = combined_df$result,
+                group = combined_df$athlete_type, 
+                location = 'mean')
+    
+  tt_output <- 
+    t.test(result ~ athlete_type,
+           data = combined_df,
+           alternative = 'less',
+           var.equal = TRUE)
+  
+  return(list(combined_df,
+              descriptives,
+              lv_output,
+              tt_output))
+}
+```
+
+### Step 1 - Define the hypothesis
+
+It's important we do this before consulting the data. If not, we risk potentially biasing the results by choosing parameters that fit our agenda. Here we are trying to determine if the professional sprinters are significantly faster than the decathletes in the 100m. Therefore we will test the following hypotheses:
+
+$H_0: \mu_D = \mu_P$ (The mean 100m time is the same for the decathletes as it is for the professional sprinters.)
+
+$H_1: \mu_D > \mu_P$ (The mean 100m time is greater for the decathletes than it is for the professional sprinters.)
+
+### Step 2 - Construct the test
+
+We're going to perform a one-tailed, two-sample t-test using the convential 5% significance level. The t-test compares the means from two independent samples and assumes that:
+
+- The measurements in each population follow a normal distribution.
+- The populations the samples came from have equal variance.
+
+Let's check these two assumptions hold true for our data. To check for normality, a simple Q-Q (Quantile-Quantile) plot can be used.
+
+```{r fig.width=4, fig.show='hold'}
+hundred_m <- events_to_compare('100M Men', '100m')
+
+qqnorm(y = filter(hundred_m[[1]], athlete_type == 'professional')$result)
+qqline(filter(hundred_m[[1]], athlete_type == 'professional')$result,
+       col = "steelblue", lwd = 2)
+
+qqnorm(y = filter(hundred_m[[1]], athlete_type == 'decathlete')$result)
+qqline(filter(hundred_m[[1]], athlete_type == 'decathlete')$result,
+         col = "steelblue", lwd = 2)
+```
+
+The points on both plots lie close to the blue line, which represents a theoretical normal Q-Q plot. Therefore we can be satisfied the first assumption of normality holds true. To check the populations of both samples have equal variance we can perform Levene's test. This is also a hypothesis test, therefore we need to define the hypothesis and then run the test:
+
+$H_0: \sigma_D^2 = \sigma_P^2$ (Variances **are** equal between samples)
+
+$H_1: \sigma_D^2 \neq \sigma_P^2$ (Variances **are** not equal between samples)
+
+Where significance level $\alpha = 0.05$
+
+```{r}
+hundred_m[[3]]
+```
+
+The resulting p-value of the test is `r round(hundred_m[[3]][['p.value']], 3)` (3dp). As this is greater than our significance level of 0.05 we do not have sufficient evidence to reject $H_0$. We can therefore assume the variances are equal between the samples which means the second assumption is satisfied.
+
+### Step 3 - Perform the test
+
+```{r}
+hundred_m[[4]]
+```
+
+### Conclusion
+
+The resulting p-value is far smaller than our significance level (0.05). This means we can stongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the professional olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and professional sprinters is more than two seconds. This probably isn't a surprising result, winning an olympic medal in the 100m sprint is no mean feat. 
+
+So can we conclude that King Gustav was wrong when he declared Jim Thorpe the "greatest athlete in the world"? Well, sprinting is just one area of the decathlon, so let's perform a similar test for two completely different decathlon events; high jump (jumping) and discus (throwing).
+
+
+
+
+
+
+
+
+
+
