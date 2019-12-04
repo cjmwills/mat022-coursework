@@ -131,13 +131,31 @@ ggplot(Decathlon) +
 
 ## Decathletes vs Olympic Medalists
 
-Jack of all trades or master of none? 
+Jack of all trades or master of none? To answer this we need to compare the decathletes performance with professionals in respective events. If a decathlete can claim to be the best athlete in the world, they should be at least as good as athletes that focus only on one event. Should the data show there is no statistical significance between results of decathletes and professionals, then it's fair to conclude King Gustav was correct.
 
-**continue here to discuss why extra dataset was brought in and the limitations of it ie different number of observations, different time frames, only medalists included. Then introduce the t-test, what it is used for, and why we are using it here.**
+To make this comparison we'll need an additional dataset. We'll use an olympic track and field dataset from Kaggle. This has the result of every athletic event at the olympic games between 1896 to 2016. This data was originally web scraped from the official olympic website. It's important to briefly discuss potential limitations with this data:
+
+- It was compiled by a third party. I have reviewed the code used to collate the data, but it's still possible errors have occured during the process.
+- It includes results at olympic games, these only occur every four years. This leads to a smaller sample than the decathlon dataset offers when comparing similar time periods.
+- It covers a different range of years than the decathlon dataset.
+- It only records the results of the medallists (gold, silver and bronze). This means the results are for only the three best performers in each event.
+
+To overcome these limitations we'll need to make a few adjustments:
+
+- Only analyse years that are in both the decathlon and olympic datasets i.e. 1985 - 2006. Note: Due to the olympic data containing fewer observations we'll actually use the year range of 1984 - 2008 to ensure our sample size is of sufficient size.
+- Extract the top three performers from each year in the decathlon dataset. This ensures we're comparing elite performers in both datasets. Otherwise we'd be comparing only olympic medallists with all decathletes, which may bias the results.
+
+We'll start with the 100m sprint, testing if decathletes are significantly slower than professional sprinters. To do this we'll use a two-sample t-test. This compares the mean of two groups and tests to see if they are significantly different from each other. The table below shows the average 100m time for the decathletes and the professionals. It's clear the professionals yield a better result, they average a time that's over two seconds faster than the decathletes, but is this difference statistically significant?
+
+```{r}
+hundred_m <- events_to_compare('100M Men', '100m', 'greater')
+knitr::kable(hundred_m[[2]])
+```
+
 
 ### Step 1 - Define the hypothesis
 
-It's important we do this before consulting the data. If not, we risk potentially biasing the results by choosing parameters that fit our agenda. Here we are trying to determine if the professional sprinters are significantly faster than the decathletes in the 100m. Therefore we will test the following hypotheses:
+It's important we do this before consulting the data. If not, we risk potentially biasing the results by choosing parameters that fit our agenda. Here we are trying to determine if decathletes are significantly slower than professional sprinters in the 100m. Therefore we will test the following hypotheses:
 
 $H_0: \mu_D = \mu_P$ (The mean 100m time is the same for the decathletes as it is for the professional sprinters.)
 
@@ -145,7 +163,7 @@ $H_1: \mu_D > \mu_P$ (The mean 100m time is greater for the decathletes than it 
 
 ### Step 2 - Construct the test
 
-We're going to perform a one-tailed, two-sample t-test using the convential 5% significance level. The t-test compares the means from two independent samples and assumes that:
+We're going to perform a one-tailed, two-sample t-test using the conventional 5% significance level. The t-test compares the means from two independent samples and assumes that:
 
 - The measurements in each population follow a normal distribution.
 - The populations the samples came from have equal variance.
@@ -153,7 +171,6 @@ We're going to perform a one-tailed, two-sample t-test using the convential 5% s
 Let's check these two assumptions hold true for our data. To check for normality, a simple Q-Q (Quantile-Quantile) plot can be used.
 
 ```{r fig.width=4, fig.show='hold'}
-hundred_m <- events_to_compare('100M Men', '100m', 'greater')
 
 qqnorm(y = filter(hundred_m[[1]], athlete_type == 'professional')$result)
 qqline(filter(hundred_m[[1]], athlete_type == 'professional')$result,
@@ -186,17 +203,24 @@ hundred_m[[4]]
 
 ### Conclusion
 
-The resulting p-value is far smaller than our significance level (0.05). This means we can stongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the professional olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and professional sprinters is more than two seconds. This probably isn't a surprising result, winning an olympic medal in the 100m sprint is no mean feat. 
+The resulting p-value is far smaller than our significance level (0.05). This means we can strongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the professional olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and professional sprinters is more than two seconds. This probably isn't a surprising result, winning an olympic medal in the 100m sprint is no mean feat. 
 
 So can we conclude that King Gustav was wrong when he declared Jim Thorpe the "greatest athlete in the world"? Well, sprinting is just one area of the decathlon, so let's perform a similar test for two completely different decathlon events; high jump (jumping) and discus (throwing).
 
 The high jump and discus satisfy the same assumptions as above and yield the following mean, standard deviation, and sample size.
 
+#### Discus
+
 ```{r}
 discus <- events_to_compare('Discus Throw Men', 'discus', 'less')
+knitr::kable(discus[[2]])
+```
+
+#### High Jump
+
+```{r}
 high_jump <- events_to_compare('High Jump Men', 'high_jump', 'less')
-discus[[2]]
-high_jump[[2]]
+knitr::kable(high_jump[[2]])
 ```
 
 Using the same hypothesis and significance level as above, it turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantasic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
