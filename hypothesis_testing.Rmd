@@ -120,7 +120,7 @@ King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe a
 summary_totalpoints <- summary(Decathlon$total_points)
 ```
 
-The decathlon dataset records the performance of decathletes between 1986 to 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes. The points and result for each of the ten events is given and the total points column indicates their performance across all events. The person with the highest total points after the ten events is crowned the winner. The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. This is known as a positive skew, where we see more extreme values on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+The decathlon dataset records the performance of decathletes between 1986 and 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes. The points and result for each of the ten events is given and the total points column indicates their performance across all events. The person with the highest total points after the ten events is crowned the winner. The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. This is known as a positive skew, where we see more extreme values on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
 
 ```{r fig.width=6, fig.height=4}
 print(summary_totalpoints)
@@ -133,7 +133,7 @@ ggplot(Decathlon) +
 
 Jack of all trades or master of none? To answer this we need to compare the decathletes performance with professionals in respective events. If a decathlete can claim to be the best athlete in the world, they should be at least as good as athletes that focus only on one event. Should the data show there is no statistical significance between results of decathletes and professionals, then it's fair to conclude King Gustav was correct.
 
-To make this comparison we'll need an additional dataset. We'll use an olympic track and field dataset from Kaggle. This has the result of every athletic event at the olympic games between 1896 to 2016. This data was originally web scraped from the official olympic website. It's important to briefly discuss potential limitations with this data:
+To make this comparison we'll need an additional dataset. We'll use an olympic track and field dataset from Kaggle. This has the result of every athletic event at the olympic games between 1896 and 2016. This data was originally web scraped from the official olympic website. It's important to briefly discuss potential limitations with this data:
 
 - It was compiled by a third party. I have reviewed the code used to collate the data, but it's still possible errors have occured during the process.
 - It includes results at olympic games, these only occur every four years. This leads to a smaller sample than the decathlon dataset offers when comparing similar time periods.
@@ -142,7 +142,7 @@ To make this comparison we'll need an additional dataset. We'll use an olympic t
 
 To overcome these limitations we'll need to make a few adjustments:
 
-- Only analyse years that are in both the decathlon and olympic datasets i.e. 1985 - 2006. Note: Due to the olympic data containing fewer observations we'll actually use the year range of 1984 - 2008 to ensure our sample size is of sufficient size.
+- Only analyse years that are in both the decathlon and olympic datasets i.e. 1985 - 2006. Note: Due to the olympic data containing fewer observations we'll actually use the year range of 1984 - 2008 to ensure our sample size is sufficient.
 - Extract the top three performers from each year in the decathlon dataset. This ensures we're comparing elite performers in both datasets. Otherwise we'd be comparing only olympic medallists with all decathletes, which may bias the results.
 
 We'll start with the 100m sprint, testing if decathletes are significantly slower than professional sprinters. To do this we'll use a two-sample t-test. This compares the mean of two groups and tests to see if they are significantly different from each other. The table below shows the average 100m time for the decathletes and the professionals. It's clear the professionals yield a better result, they average a time that's over two seconds faster than the decathletes, but is this difference statistically significant?
@@ -209,21 +209,43 @@ So can we conclude that King Gustav was wrong when he declared Jim Thorpe the "g
 
 The high jump and discus satisfy the same assumptions as above and yield the following mean, standard deviation, and sample size.
 
-#### Discus
-
 ```{r}
 discus <- events_to_compare('Discus Throw Men', 'discus', 'less')
-knitr::kable(discus[[2]])
+knitr::kable(discus[[2]] %>% 
+               mutate(mean = round(mean, 3),
+                      sd = round(sd, 3)) %>% 
+               rename(Discus = athlete_type,
+                      Mean = mean,
+                      `Std Dev` = sd,
+                      `Sample Size` = n))
 ```
-
-#### High Jump
 
 ```{r}
 high_jump <- events_to_compare('High Jump Men', 'high_jump', 'less')
-knitr::kable(high_jump[[2]])
+knitr::kable(high_jump[[2]] %>% 
+               mutate(mean = round(mean, 3),
+                      sd = round(sd, 3)) %>% 
+               rename(`High Jump` = athlete_type,
+                      Mean = mean,
+                      `Std Dev` = sd,
+                      `Sample Size` = n))
 ```
 
-Using the same hypothesis and significance level as above, it turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantasic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
+Using the same hypothesis and significance level as above, we get the following results:
+
+```{r}
+knitr::kable(
+  tibble(
+  Event = c("Discus", "High Jump"),
+  `p-value (3dp)` = c(substr(format(discus[[4]]$p.value, scientific = F), 1, 5), substr(format(high_jump[[4]]$p.value, scientific = F), 1, 5)),
+  `Lower Conf Int` = c(discus[[4]]$conf.int[1], high_jump[[4]]$conf.int[1]),
+       `Upper Conf Int` = c(discus[[4]]$conf.int[2], high_jump[[4]]$conf.int[2]) %>% round(3)
+       )
+)
+```
+
+
+It turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantasic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
 
 
 
