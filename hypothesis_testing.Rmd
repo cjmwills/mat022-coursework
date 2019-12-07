@@ -30,6 +30,8 @@ colnames(Decathlon) <-
     "p_discus", "p_polevault", "p_javelin",
     "p_1500m")
 
+ioc_codes <- read_csv("data/ioc_codes.csv")
+
 # create tidy version of decathlon data
 decathlon_data <- 
   as_tibble(Decathlon) %>% 
@@ -40,7 +42,9 @@ decathlon_data <-
            case_when(str_detect(event, "r_") ~ "result",
                      str_detect(event, "p_") ~ "points"),
          event = str_sub(event, 3)) %>% 
-  spread(type_of_result, result)
+  spread(type_of_result, result) %>% 
+  left_join(ioc_codes, by = c("nationality" = "code")) %>% 
+  select(total_points, name = name.x, nationality_code = nationality, nationality = name.y, everything())
 
 # read in olympic data for comparison
 olympic_data <- 
