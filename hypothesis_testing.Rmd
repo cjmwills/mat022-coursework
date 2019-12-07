@@ -31,6 +31,9 @@ colnames(Decathlon) <-
     "p_1500m")
 
 ioc_codes <- read_csv("data/ioc_codes.csv")
+continent_lookup <- 
+read_csv("data/continent_codes.csv") %>%
+select(continent = Continent_Name, country_code = Three_Letter_Country_Code)
 
 # create tidy version of decathlon data
 decathlon_data <- 
