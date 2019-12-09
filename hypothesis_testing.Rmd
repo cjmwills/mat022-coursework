@@ -47,7 +47,15 @@ decathlon_data <-
          event = str_sub(event, 3)) %>% 
   spread(type_of_result, result) %>% 
   left_join(ioc_codes, by = c("nationality" = "code")) %>% 
-  select(total_points, name = name.x, nationality_code = nationality, nationality = name.y, everything())
+  left_join(y = continent_lookup,
+            by = c("nationality" = "country_code")) %>% 
+  select(total_points, 
+         name = name.x, 
+         nationality_code = nationality, 
+         nationality = name.y,
+         continent,
+         everything())
+
 
 # read in olympic data for comparison
 olympic_data <- 
