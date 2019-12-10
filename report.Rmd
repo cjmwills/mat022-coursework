@@ -263,6 +263,16 @@ knitr::kable(
 It turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantasic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
 
 
+```{r}
+anova_data <- 
+  Decathlon %>% 
+  as_tibble() %>%
+  left_join(continent_lookup, c("nationality" = "country_code")) %>% 
+  select(total_points, continent)
+
+anova_res <- 
+  aov(total_points ~ continent, data = anova_data)
+```
 
 
 
