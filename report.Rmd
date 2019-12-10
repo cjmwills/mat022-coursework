@@ -216,7 +216,7 @@ The resulting p-value of the test is `r round(hundred_m[[3]][['p.value']], 3)` (
 hundred_m[[4]]
 ```
 
-### Conclusion
+### Step 4 - Conclusion
 
 The resulting p-value is far smaller than our significance level (0.05). This means we can strongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the professional olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and professional sprinters is more than two seconds. This probably isn't a surprising result, winning an olympic medal in the 100m sprint is no mean feat. 
 
@@ -263,19 +263,59 @@ knitr::kable(
 It turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantasic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
 
 
-```{r}
-anova_data <- 
+## Decathletes by Continent
+
+We've seen that decathletes can't compete with olympians in the individual events that make up the decathlon. But how do they compare amongst themselves? More specifically, who produces the best decathletes? To answer this, we could compare multiple countries with one another, but with `r Decathlon$nationality %>% unique() %>% length()` different countries it could take a while. A better way to answer this question is by grouping each country by continent. The question then becomes; which continent produces the best decathletes?
+
+To answer this we need a country to continent lookup table, this has been sourced from the internet. Similiarly to the Olympic data this has been compiled by a third party which needs to be considered with respect to accuracy. We can then use this lookup to get the continent each decathlete represents. A new set of problems arise;
+
+- Decathletes have represented countries that are no longer officially recognised. For example; the Soviet Union and East and West Germany. In an attempt not to lose data these countries have been mapped to the most appropriate continent based on their new country name. For example West Germany maps to Germany which maps to Europe.
+- Countries that span multiple continents, namely Europe and Asia, meant it impossible to classify as one or the other. All these cases occurred in Eurasia which has subsequently formed it's own group, despite not being an officially recognised continent. 
+
+As we're looking to compare the means between three or more groups, that suggests a one-way ANOVA test may be sensible. The assumptions are similar to those of the t-test we performed earlier. Firstly, the underlying distributions are assumed to be normal. As seen in [Introduction] the Total Points variable is not normally distributed, it's positively skewed. Therefore we aren't able to use one-way ANOVA and will instead need to use a non-parametric alternative which makes no assumption about the underlying distribution.
+
+The Kruskal-Wallis rank sum test is considered the non-parametric equivalent of one-way ANOVA. It assumes  each group (ie continent) has the same shape. This can be checked with a simple boxplot which confirms the assumption holds.
+
+```{r include=FALSE}
+name_continent_lookup <- 
   Decathlon %>% 
   as_tibble() %>%
   left_join(continent_lookup, c("nationality" = "country_code")) %>% 
-  select(total_points, continent)
+  select(name, continent) %>%
+  distinct(name, .keep_all = TRUE)
 
-anova_res <- 
-  aov(total_points ~ continent, data = anova_data)
+points_by_continent <- 
+  Decathlon %>% 
+  as_tibble() %>%
+  group_by(name) %>% 
+  summarise(avg_points = mean(total_points)) %>% 
+  left_join(name_continent_lookup, by = "name")
+
+continent_summary <- 
+  points_by_continent %>% 
+  group_by(continent) %>% 
+  summarise(mean = mean(avg_points),
+            sd = sd(avg_points),
+            n = n())
+
+# run kruskal-wallis test - define sig level before (supposedly) running test!
+kruskal_res <- kruskal.test(formula = avg_points ~ continent, data = points_by_continent)
 ```
 
+```{r}
+points_by_continent %>% 
+  ggplot(aes(continent, avg_points)) +
+  geom_boxplot()
+```
 
+It also requires independence of observations within and between groups. That is, no decathlete can appear more than once in the data. As it stands we are violating this condition, many decathletes have competed over multiple years which means the observations are not considered independent. To overcome this we can average each decathletes score across all their decathlons and that points total will form an observation. Therefore we now have `r nrow(points_by_continent)` observations, one for each unique decathlete. As with all statistical tests we will define the hypothesis and construct the test before consulting the data. 
 
+### Step 1 - Define the hypothesis
 
+### Step 2 - Construct the test
 
+### Step 3 - Perform the test
 
+### Step 4 - Conclusion
+
+*reference this article https://statistics.laerd.com/spss-tutorials/kruskal-wallis-h-test-using-spss-statistics.php*
