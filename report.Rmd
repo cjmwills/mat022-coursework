@@ -347,18 +347,24 @@ Our test statistic (`r round(kruskal_res[[1]][[1]], 3)`) greatly exceeds our cri
 
 ### Post-hoc tests
 
-The average points by continent table below allows for a quick comparison between the continents. But this doesn't tell us if the difference in points scored are statistically significantly different from one another. To do this we need to perform pairwise comparisons. 
+For context the average points by continent table below shows how each continent compares. This doesn't tell us if the difference in points scored are statistically significantly different from one another. To do this we need to perform pairwise comparisons. 
+
+```{r}
+continent_summary %>% arrange(mean)
+```
+
 
 To compare continents we could run several pairwise comparisons using the Mann-Whitney sum of ranks test. This is the non-parametric equivalent of the two sample t-test. However, this can prove time consuming when comparing seven groups. Therefore, a more suitable post-hoc test is Connover & Iman's procedure for multiple comparisons. 
 
-Another consideration we have to make is around unintentionally inflating the risk of Type I error. If we are making multiple comparisons between groups using significance level $\alpha = 0.05$ we'd only have to make 20 comparisons before we would expect to incorrectly reject $H_0$. Therefore when we are making multiple comparisons we have to make an adjustment to our significance level. For the Conover & Inman procedure we will use the Bonferonni correction. This is calculated by dividing the original significance level by the number of comparisons we are making. We have seven continents which means we'll be making 21 comparisons. Therefore our corrected significance level is $0.05 \div 21 = 0.002$ (3dp).
+Another consideration we have to make is around unintentionally inflating the risk of Type I error. If we are making multiple comparisons between groups using significance level $\alpha = 0.05$ we'd only have to make 20 comparisons before we would expect to incorrectly reject $H_0$. Therefore we have to make an adjustment to our significance level. For the Conover & Iman procedure we will use the Bonferonni correction. This is calculated by dividing the original significance level by the number of comparisons we are making. We have seven continents which means we'll be making 21 comparisons. Therefore our corrected significance level is $0.05 \div 21 = 0.002$ (3dp).
 
 To be explicit our hypotheses for these comparisons are:
 
 $H_0: \eta_i = \eta_j$
-$H_0: \eta_i \neq \eta_j$
 
-Conover and Iman's multiple comparisons yields the following p-values between every combination of continents.
+$H_1: \eta_i \neq \eta_j$
+
+Conover and Iman's multiple comparisons yields the following p-values for each combination of continents.
 
 ```{r, include=FALSE}
 con_iman <- posthoc.kruskal.conover.test(avg_points ~ continent, data = points_by_continent, p.adjust.method = "bonferroni")
