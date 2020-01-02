@@ -136,7 +136,7 @@ King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe a
 summary_totalpoints <- summary(Decathlon$total_points)
 ```
 
-The decathlon dataset records the performance of decathletes between 1986 and 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes. The points and result for each of the ten events is given and the total points column indicates their performance across all events. The person with the highest total points after the ten events is crowned the winner. The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. The historgram of total points shows a positive skew, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+The decathlon dataset records the performance of decathletes between 1986 and 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes. The points and result for each of the ten events is given and the total points column indicates their performance across all events. The person with the highest total points after the ten events is crowned the winner. The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. The histogram of total points shows a positive skew, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
 
 ```{r fig.width=6, fig.height=4}
 print(summary_totalpoints)
@@ -151,15 +151,15 @@ Jack of all trades or master of none? To answer this we need to compare the deca
 
 To make this comparison we'll need an additional dataset. We'll use an olympic track and field dataset from Kaggle. This has the result of every athletic event at the olympic games between 1896 and 2016. This data was originally web scraped from the official olympic website. It's important to briefly discuss potential limitations with this data:
 
-- It was compiled by a third party. I have reviewed the code used to collate the data, but it's still possible errors have occured during the process.
+- It was compiled by a third party. I have reviewed the code used to collate the data, but it's still possible errors have occurred during the process.
 - It includes results at olympic games, these only occur every four years. This leads to a smaller sample than the decathlon dataset offers when comparing similar time periods.
 - It covers a different range of years than the decathlon dataset.
-- It only records the results of the medallists (gold, silver and bronze). This means the results are for only the three best performers in each event.
+- It only records the results of the medalists (gold, silver and bronze). This means the results are for only the three best performers in each event.
 
 To overcome these limitations we'll need to make a few adjustments:
 
 - Only analyse years that are in both the decathlon and olympic datasets i.e. 1985 - 2006. Note: Due to the olympic data containing fewer observations we'll actually use the year range of 1984 - 2008 to ensure our sample size is sufficient.
-- Extract the top three performers from each year in the decathlon dataset. This ensures we're comparing elite performers in both datasets. Otherwise we'd be comparing only olympic medallists with all decathletes, which may bias the results.
+- Extract the top three performers from each year in the decathlon dataset. This ensures we're comparing elite performers in both datasets. Otherwise we'd be comparing only olympic medalists with all decathletes, which may bias the results.
 
 We'll start with the 100m sprint, testing if decathletes are significantly slower than professional sprinters. To do this we'll use a two-sample t-test. This compares the mean of two groups and tests to see if they are significantly different from each other. The table below shows the average 100m time for the decathletes and the professionals. It's clear the professionals yield a better result, they average a time that's over two seconds faster than the decathletes, but is this difference statistically significant?
 
@@ -261,14 +261,14 @@ knitr::kable(
 ```
 
 
-It turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantasic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
+It turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and Olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantastic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
 
 
 ## Decathletes by Continent
 
-We've seen that decathletes can't compete with olympians in the individual events that make up the decathlon. But how do they compare amongst themselves? More specifically, who produces the best decathletes? To answer this, we could compare multiple countries with one another, but with `r Decathlon$nationality %>% unique() %>% length()` different countries it could take a while. A better way to answer this question is by grouping each country by continent. The question then becomes; which continent produces the best decathletes?
+We've seen that decathletes can't compete with Olympians in the individual events that make up the decathlon. But how do they compare amongst themselves? More specifically, who produces the best decathletes? To answer this, we could compare multiple countries with one another, but with `r Decathlon$nationality %>% unique() %>% length()` different countries it could take a while. A better way to answer this question is by grouping each country by continent. The question then becomes; which continent produces the best decathletes?
 
-To answer this we need a country to continent lookup table, this has been sourced from the internet. Similiarly to the Olympic data this has been compiled by a third party which needs to be considered with respect to accuracy. We can then use this lookup to get the continent each decathlete represents. A new set of problems arise;
+To answer this we need a country to continent lookup table, this has been sourced from the internet. Similarly to the Olympic data this has been compiled by a third party which needs to be considered with respect to accuracy. We can then use this lookup to get the continent each decathlete represents. A new set of problems arise;
 
 - Decathletes have represented countries that are no longer officially recognised. For example; the Soviet Union and East and West Germany. In an attempt not to lose data these countries have been mapped to the most appropriate continent based on their new country name. For example West Germany maps to Germany which maps to Europe.
 - Countries that span multiple continents, namely Europe and Asia, meant it impossible to classify as one or the other. All these cases occurred in Eurasia which has subsequently formed it's own group, despite not being an officially recognised continent. 
@@ -347,6 +347,8 @@ Our test statistic (`r round(kruskal_res[[1]][[1]], 3)`) greatly exceeds our cri
 
 ### Post-hoc tests
 
+The average points by continent table below allows for a quick comparison between the continents. But this doesn't tell us if the difference in points scored are statistically significantly different from one another. To do this we need to perform pairwise comparisons. 
+
 To compare continents we could run several pairwise comparisons using the Mann-Whitney sum of ranks test. This is the non-parametric equivalent of the two sample t-test. However, this can prove time consuming when comparing seven groups. Therefore, a more suitable post-hoc test is Connover & Iman's procedure for multiple comparisons. 
 
 Another consideration we have to make is around unintentionally inflating the risk of Type I error. If we are making multiple comparisons between groups using significance level $\alpha = 0.05$ we'd only have to make 20 comparisons before we would expect to incorrectly reject $H_0$. Therefore when we are making multiple comparisons we have to make an adjustment to our significance level. For the Conover & Inman procedure we will use the Bonferonni correction. This is calculated by dividing the original significance level by the number of comparisons we are making. We have seven continents which means we'll be making 21 comparisons. Therefore our corrected significance level is $0.05 \div 21 = 0.002$ (3dp).
@@ -368,10 +370,8 @@ con_iman
 
 This can be interpreted such that a p-value between two continents that is less than our Bonferroni corrected p-value (0.002) suggests a significant difference between the continents performance. From the table above these are; Asia and Eurasia, Asia and Europe, Asia and North America, Eurasia and Europe, Eurasia and South America.
 
-It can be difficult to summarise multiple comparisons tests succintly but this seems to suggest that Asia perorm the worst at decathlon. They record significantly lower points totals than three other continents. While Asia have performed well in recent years in track and field events it could be argued this was a result of Beijing hosting the 2012 summer olympics. Before this time the investment in Asian track and field events was more limited, which could explain this finding. 
+It can be difficult to summarise multiple comparisons tests succinctly but this seems to suggest that Asia perform the worst at decathlon. They record significantly lower points totals than three other continents. While Asia have performed well in recent years in track and field events it could be argued this was a result of Beijing hosting the 2012 summer Olympics. Before this time the investment in Asian track and field events was more limited, which could explain this finding. 
 
-Meanwhile, Eurasia seem to be the continent that produces the best decathles, showing statistically significant gaps to Asia, Europe, and South America. Towards the end of the cold war the Soviet Union, which makes up a high proportion of the Eurasia group, had a lot of success in track and field events and plenty of money was invested in it. This may explain why they appear to be the most succesful continent in the decathlon. 
-
-
+Meanwhile, Eurasia seem to be the continent that produces the best decathletes, showing statistically significant gaps to Asia, Europe, and South America. Towards the end of the cold war the Soviet Union, which makes up a high proportion of the Eurasia group, had a lot of success in track and field events and plenty of money was invested in it. This may explain why they appear to be the most successful continent in the decathlon. 
 
 *reference this article https://statistics.laerd.com/spss-tutorials/kruskal-wallis-h-test-using-spss-statistics.php*
