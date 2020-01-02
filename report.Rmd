@@ -137,13 +137,19 @@ events_to_compare <- function(olympic_event, decathlon_event, tail){
 ```{r out.width='20%', out.height='20%', fig.align='center'}
 knitr::include_graphics("jim_thorpe.jpg")
 ```
+\centerline{\tiny{Figure 1: Jim Thorpe, 1912 Olympic gold medalists}}
+
 \  
 
 \centerline{\large{"You, sir, are the greatest athlete in the world"}}
 
 \  
 
-King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe at the 1912 olympic games in Stockholm. A bold statement maybe, but can you argue with his logic? Thorpe had proven himself to be the best athlete across ten different sports. It's harder to be great at ten things than one, therefore he must be the best athlete in the world. In this paper we will investigate if decathletes can lay stake to this claim, and investigate which continent produces the best decathletes.
+King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe at the 1912 olympic games in Stockholm. A bold statement maybe, but can you argue with his logic? Thorpe had proven himself to be the best athlete across ten different sports. It's harder to be great at ten sports than one, therefore he must be the best athlete in the world. In this paper we will investigate if decathletes can lay stake to this claim by comparing them with olympians in their respective events. 
+
+We'll then investigate whether there is a difference in performance between continents. If there is we'll dive further into which continents have produced the best decathletes and speculate on potential reasons for this. Descriptive analysis will be carried out before this to better understand the data we are working with and a conclusion will be provided after to summarise the findings. 
+
+# Descriptive Analysis
 
 ```{r}
 summary_totalpoints <- summary(Decathlon$total_points)
