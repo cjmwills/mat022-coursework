@@ -1,6 +1,23 @@
 ---
-output: html_document
+output:
+  pdf_document:
+    fig_caption: true
+  html_document: default
 ---
+
+\centerline{\Large{MAT022 Foundations of Statistics and Data Science}} \  
+\centerline{\Large{Summative Assessment 2019/20}} \  
+\newline
+\newline
+\centerline{\Large{Charles Wills}} \  
+\centerline{\Large{c1977808}} \  
+\newline
+\newline
+\centerline{\Large{`r format(Sys.Date(), "%d/%m/%Y")`}}
+
+\newpage
+\tableofcontents
+\newpage
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
@@ -116,21 +133,18 @@ events_to_compare <- function(olympic_event, decathlon_event, tail){
 }
 ```
 
+# Introduction
+
 ```{r out.width='20%', out.height='20%', fig.align='center'}
 knitr::include_graphics("jim_thorpe.jpg")
 ```
+\  
 
-<center>
-<font size='5'>
-"You, sir, are the greatest athlete in the world" 
-</font>
-</center>
+\centerline{\large{"You, sir, are the greatest athlete in the world"}}
 
 \  
 
-King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe at the 1912 olympic games in Stockholm. A bold statement maybe, but can you argue with his logic? Thorpe had proven himself to be the best athlete across ten different sports. It's harder to be great at ten things than one, therefore he must be the best athlete in the world. In this paper we will investigate if decathletes can lay stake to this claim, which continent produces the best decathletes, and ...
-
-## Introduction
+King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe at the 1912 olympic games in Stockholm. A bold statement maybe, but can you argue with his logic? Thorpe had proven himself to be the best athlete across ten different sports. It's harder to be great at ten things than one, therefore he must be the best athlete in the world. In this paper we will investigate if decathletes can lay stake to this claim, and investigate which continent produces the best decathletes.
 
 ```{r}
 summary_totalpoints <- summary(Decathlon$total_points)
@@ -145,7 +159,7 @@ ggplot(Decathlon) +
   labs(x = 'Total Points', y = 'Count')
 ```
 
-## Decathletes vs Olympic Medalists
+# Decathletes vs Olympic Medalists
 
 Jack of all trades or master of none? To answer this we need to compare the decathletes performance with professionals in respective events. If a decathlete can claim to be the best athlete in the world, they should be at least as good as athletes that focus only on one event. Should the data show there is no statistical significance between results of decathletes and professionals, then it's fair to conclude King Gustav was correct.
 
@@ -169,7 +183,7 @@ knitr::kable(hundred_m[[2]])
 ```
 
 
-### Step 1 - Define the hypothesis
+## Step 1 - Define the hypothesis
 
 It's important we do this before consulting the data. If not, we risk potentially biasing the results by choosing parameters that fit our agenda. Here we are trying to determine if decathletes are significantly slower than professional sprinters in the 100m. Therefore we will test the following hypothesis:
 
@@ -177,7 +191,7 @@ $H_0: \mu_D = \mu_P$ (The mean 100m time is the same for the decathletes as it i
 
 $H_1: \mu_D > \mu_P$ (The mean 100m time is greater for the decathletes than it is for the professional sprinters.)
 
-### Step 2 - Construct the test
+## Step 2 - Construct the test
 
 We're going to perform a one-tailed, two-sample t-test using the conventional 5% significance level. The t-test compares the means from two independent samples and assumes that:
 
@@ -211,13 +225,13 @@ hundred_m[[3]]
 
 The resulting p-value of the test is `r round(hundred_m[[3]][['p.value']], 3)` (3dp). As this is greater than our significance level of 0.05 we do not have sufficient evidence to reject $H_0$. We can therefore assume the variances are equal between the samples which means the second assumption is satisfied.
 
-### Step 3 - Perform the test
+## Step 3 - Perform the test
 
 ```{r}
 hundred_m[[4]]
 ```
 
-### Step 4 - Conclusion
+## Step 4 - Conclusion
 
 The resulting p-value is far smaller than our significance level (0.05). This means we can strongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the professional olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and professional sprinters is more than two seconds. This probably isn't a surprising result, winning an olympic medal in the 100m sprint is no mean feat. 
 
@@ -264,7 +278,7 @@ knitr::kable(
 It turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and Olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantastic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
 
 
-## Decathletes by Continent
+# Decathletes by Continent
 
 We've seen that decathletes can't compete with Olympians in the individual events that make up the decathlon. But how do they compare amongst themselves? More specifically, who produces the best decathletes? To answer this, we could compare multiple countries with one another, but with `r Decathlon$nationality %>% unique() %>% length()` different countries it could take a while. A better way to answer this question is by grouping each country by continent. The question then becomes; which continent produces the best decathletes?
 
@@ -313,7 +327,7 @@ points_by_continent %>%
 
 It also requires independence of observations within and between groups. That is, no decathlete can appear more than once in the data. As it stands we are violating this condition, many decathletes have competed over multiple years which means the observations are not considered independent. To overcome this we can average each decathletes score across all their decathlons and that points total will form an observation. Therefore we now have `r nrow(points_by_continent)` observations, one for each unique decathlete. As with all statistical tests we will define the hypothesis and construct the test before consulting the data. 
 
-### Step 1 - Define the hypothesis
+## Step 1 - Define the hypothesis
 
 The Kruskal-Wallis test assigns a rank based on the observation and calculates the median rank for each group. Therefore we test whether the median of all groups are equal:
 
@@ -321,7 +335,7 @@ $H_0: \eta_1 = \eta_2 = ... = \eta_7$ (The median rank of all continents are equ
 
 $H_1: \eta_i \neq \eta_j$ for some $i \neq j$ (At least two continents have a different median rank.)
 
-### Step 2 - Construct the test
+## Step 2 - Construct the test
 
 We will use the conventional significance level of $\alpha = 0.05$. The Kruskal-Wallis test statistic can be written as:
 
@@ -335,17 +349,17 @@ where;
 
 It can be shown that if the null hypothesis is true then H is approximately distributed like a random variable from a Chi-square distribution on k-1 degrees of freedom. Therefore the critical value can be calculated by $\chi_6^2 = 12.592$ (with $\alpha = 0.05$ and rounded to 3dp). If our test statistic exceeds this value we can reject the null hypothesis.
 
-### Step 3 - Perform the test
+## Step 3 - Perform the test
 
 ```{r}
 kruskal_res
 ```
 
-### Step 4 - Conclusion
+## Step 4 - Conclusion
 
-Our test statistic (`r round(kruskal_res[[1]][[1]], 3)`) greatly exceeds our critical value (12.592) which means we can strongly reject $H_0$ in favour of $H_1$. This is also confirmed by our p-value being far smaller than our significance level of 0.05. We can interpret this as at least two continents show a significant difference in points scored. This means that at least one continent is better than one other continent. But we can't conclude yet which continents these are. For that we have to perform post-hoc tests.
+Our test statistic (`r round(kruskal_res[[1]][[1]], 3)`) greatly exceeds our critical value (12.592) which means we can strongly reject $H_0$ in favour of $H_1$. This is also confirmed by our p-value being far smaller than our significance level of 0.05. We can interpret this as at least two continents show a significant difference in points scored. This means that at least one continent is better than one other continent. But we can't conclude yet which continents these are. For that we have to perform post hoc tests.
 
-### Post-hoc tests
+## Step 5 - Post hoc tests
 
 For context the average points by continent table below shows how each continent compares. This doesn't tell us if the difference in points scored are statistically significantly different from one another. To do this we need to perform pairwise comparisons. 
 
@@ -354,7 +368,7 @@ continent_summary %>% arrange(mean)
 ```
 
 
-To compare continents we could run several pairwise comparisons using the Mann-Whitney sum of ranks test. This is the non-parametric equivalent of the two sample t-test. However, this can prove time consuming when comparing seven groups. Therefore, a more suitable post-hoc test is Connover & Iman's procedure for multiple comparisons. 
+To compare continents we could run several pairwise comparisons using the Mann-Whitney sum of ranks test. This is the non-parametric equivalent of the two sample t-test. However, this can prove time consuming when comparing seven groups. Therefore, a more suitable post hoc test is Connover & Iman's procedure for multiple comparisons. 
 
 Another consideration we have to make is around unintentionally inflating the risk of Type I error. If we are making multiple comparisons between groups using significance level $\alpha = 0.05$ we'd only have to make 20 comparisons before we would expect to incorrectly reject $H_0$. Therefore we have to make an adjustment to our significance level. For the Conover & Iman procedure we will use the Bonferonni correction. This is calculated by dividing the original significance level by the number of comparisons we are making. We have seven continents which means we'll be making 21 comparisons. Therefore our corrected significance level is $0.05 \div 21 = 0.002$ (3dp).
 
