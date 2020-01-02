@@ -2,7 +2,6 @@
 output:
   pdf_document:
     fig_caption: true
-  html_document: default
 ---
 
 \centerline{\Large{MAT022 Foundations of Statistics and Data Science}} \  
