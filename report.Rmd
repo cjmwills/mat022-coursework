@@ -137,11 +137,10 @@ events_to_compare <- function(olympic_event, decathlon_event, tail){
 
 # Abstract
 
-This report studies the results of top performances in the Decathlon between 1985 and 2006. It compares the performance of the decathletes with Olympic medalists in three individual events; 100m, discus and high jump. It concludes that the decathletes are not as good as the Olympic medalists by running a t-test. 
+This report studies the results of top performances in the Decathlon between 1985 and 2006. It compares the performance of the decathletes with Olympic medalists in three individual events; 100m, discus and high jump. It concludes that the decathletes are not as good as the Olympic medalists.
 
 It also looks at the total points scored by the continent the decathlete is from in an attempt to understand if which continent produces the best and worst decathletes. It finds that the lowest performing decathletes come from Asia and the highest performing from Eurasia. 
 
-\newpage
 
 # Introduction
 
@@ -162,11 +161,11 @@ We'll then investigate whether there is a difference in performance between cont
 
 # Background
 
-Decathlon has long been an interesting event. It's one of few sports that requires an athlete to compete across such a variety of events. With so many component parts making up a decathlete's final points tally, it seems certain that a story lies hidden within the data. This report aims to view the decathlon through a statistical lens, discovering insight about previously unseen features, before trying to quantify whether decathletes are truly jack of all trades, or simply masters of none.
+Decathlon has long been an interesting event. It's one of few sports that requires an athlete to compete across such a variety of events. With so many component parts making up a decathletes final points tally, it seems certain that a story lies hidden within the data. This report aims to view the decathlon through a statistical lens, discovering insight about previously unseen features, before trying to quantify whether decathletes are truly jack of all trades, or simply masters of none.
 
 There are many preconceptions about which corner of the globe produces the best athletes. Jamaica have a history of talented sprinters, the USA perform strongly in a variety of events, and more recently China have announced themselves on the world athletics stage. This report aims to provide a statistically sound answer to the question; who produces the best decathletes? 
 
-The analysis has been produced using R and the report has been compiled using RMarkdown. Key concepts have been taken from Wickham and Grolemund (2016) who authored a collection of R packages called the `tidyverse`. These packages share a common Application Programming Interface (API) allowing for a consistent and reproducbible programming style.
+The analysis has been produced using R and the report has been compiled using RMarkdown. Key concepts have been taken from Wickham and Grolemund (2016) who authored a collection of R packages called the `tidyverse`. These packages share a common Application Programming Interface (API) allowing for a consistent and reproducible programming style.
 
 # Exploratory Data Analysis
 
@@ -202,7 +201,7 @@ ggplot(decathlon_data) +
   labs(x = "")
 ```
 
-We can see events that involve throwing such as Javelin, Polevault, Shotput and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points. This may mean the decathletes are more likely to compete with Olympians in a running event than a throwing event.
+We can see events that involve throwing such as Javelin, Pole vault, Shot put and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points. This may mean the decathletes are more likely to compete with Olympians in a running event than a throwing event.
 
 In the [Decathletes by Continent] section we'll investigate if there is a significant difference between decathletes from different continent. The table below shows the average total points by continent, as well as standard deviation and sample size. 
 
@@ -445,9 +444,9 @@ Meanwhile, Eurasia seem to be the continent that produces the best decathletes, 
 
 # Conclusion
 
-The first question this report looked at was whether decathletes are as good as Olympians in individual events. It was found that Olympians achieved statistically significantly better results than decathletes at 100m, Discus and High Jump. Three seprate t-tests were conducted to reach this conclusion. To further this analysis a t-test could be ran for each of the ten events. We could also have grouped the events in the decathlon into throwing, running and jumping, before comparing those groups with the Olympians.
+The first question this report looked at was whether decathletes are as good as Olympians in individual events. It was found that Olympians achieved statistically significantly better results than decathletes at 100m, Discus and High Jump. Three separate t-tests were conducted to reach this conclusion. To further this analysis a t-test could be ran for each of the ten events. We could also have grouped the events in the decathlon into throwing, running and jumping, before comparing those groups with the Olympians.
 
-The second question looked at which continent produced the best decathletes. To answer this a Kruskal-Wallis test was conducted as a non-parametric alternative to the One-Way ANOVA, as the assumption of normality did not hold. The outcome of this test showed there was a significant difference between at least two of the continents. A Conover & Iman post hoc test seemed to show that Asia were the lowest performing continent, averaging lower points scored than any other coninent. Meanwhile, Eurasia appeared to be the highest performing contninent. However, as it's not an officially recognised continent it provides somewhat limited information.
+The second question looked at which continent produced the best decathletes. To answer this a Kruskal-Wallis test was conducted as a non-parametric alternative to the One-Way ANOVA, as the assumption of normality did not hold. The outcome of this test showed there was a significant difference between at least two of the continents. A Conover & Iman post hoc test seemed to show that Asia were the lowest performing continent, averaging lower points scored than any other continent. Meanwhile, Eurasia appeared to be the highest performing continent. However, as it's not an officially recognised continent it provides somewhat limited information.
 
 A larger sample size for the Olympic data would likely have improved the analysis. Due to the proportionately smaller Olympic data it meant it was hard to verify important assumptions needed for the t-test. For example that both samples come from populations with equal variance.
 
