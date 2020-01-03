@@ -137,7 +137,7 @@ events_to_compare <- function(olympic_event, decathlon_event, tail){
 ```{r out.width='20%', out.height='20%', fig.align='center'}
 knitr::include_graphics("jim_thorpe.jpg")
 ```
-\centerline{\tiny{Figure 1: Jim Thorpe, 1912 Olympic gold medalists}}
+\centerline{\tiny{Figure 1: Jim Thorpe, 1912 Olympic gold medalist.}}
 
 \  
 
@@ -145,7 +145,7 @@ knitr::include_graphics("jim_thorpe.jpg")
 
 \  
 
-King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe at the 1912 olympic games in Stockholm. A bold statement maybe, but can you argue with his logic? Thorpe had proven himself to be the best athlete across ten different sports. It's harder to be great at ten sports than one, therefore he must be the best athlete in the world. In this paper we will investigate if decathletes can lay stake to this claim by comparing them with olympians in their respective events. 
+King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe at the 1912 Olympic games in Stockholm. A bold statement maybe, but can you argue with his logic? Thorpe had proven himself to be the best athlete across ten different sports. It's harder to be great at ten sports than one, therefore he must be the best athlete in the world. In this paper we will investigate if decathletes can lay stake to this claim by comparing them with Olympians in their respective events. 
 
 We'll then investigate whether there is a difference in performance between continents. If there is we'll dive further into which continents have produced the best decathletes and speculate on potential reasons for this. Descriptive analysis will be carried out before this to better understand the data we are working with and a conclusion will be provided after to summarise the findings. 
 
@@ -168,17 +168,17 @@ ggplot(Decathlon) +
 
 Jack of all trades or master of none? To answer this we need to compare the decathletes performance with professionals in respective events. If a decathlete can claim to be the best athlete in the world, they should be at least as good as athletes that focus only on one event. Should the data show there is no statistical significance between results of decathletes and professionals, then it's fair to conclude King Gustav was correct.
 
-To make this comparison we'll need an additional dataset. We'll use an olympic track and field dataset from Kaggle. This has the result of every athletic event at the olympic games between 1896 and 2016. This data was originally web scraped from the official olympic website. It's important to briefly discuss potential limitations with this data:
+To make this comparison we'll need an additional dataset. We'll use an Olympic track and field dataset from Kaggle. This has the result of every athletic event at the Olympic games between 1896 and 2016. This data was originally web scraped from the official Olympic website. It's important to briefly discuss potential limitations with this data:
 
 - It was compiled by a third party. I have reviewed the code used to collate the data, but it's still possible errors have occurred during the process.
-- It includes results at olympic games, these only occur every four years. This leads to a smaller sample than the decathlon dataset offers when comparing similar time periods.
+- It includes results at Olympic games, these only occur every four years. This leads to a smaller sample than the decathlon dataset offers when comparing similar time periods.
 - It covers a different range of years than the decathlon dataset.
 - It only records the results of the medalists (gold, silver and bronze). This means the results are for only the three best performers in each event.
 
 To overcome these limitations we'll need to make a few adjustments:
 
-- Only analyse years that are in both the decathlon and olympic datasets i.e. 1985 - 2006. Note: Due to the olympic data containing fewer observations we'll actually use the year range of 1984 - 2008 to ensure our sample size is sufficient.
-- Extract the top three performers from each year in the decathlon dataset. This ensures we're comparing elite performers in both datasets. Otherwise we'd be comparing only olympic medalists with all decathletes, which may bias the results.
+- Only analyse years that are in both the decathlon and Olympic datasets i.e. 1985 - 2006. Note: Due to the Olympic data containing fewer observations we'll actually use the year range of 1984 - 2008 to ensure our sample size is sufficient.
+- Extract the top three performers from each year in the decathlon dataset. This ensures we're comparing elite performers in both datasets. Otherwise we'd be comparing only Olympic medalists with all decathletes, which may bias the results.
 
 We'll start with the 100m sprint, testing if decathletes are significantly slower than professional sprinters. To do this we'll use a two-sample t-test. This compares the mean of two groups and tests to see if they are significantly different from each other. The table below shows the average 100m time for the decathletes and the professionals. It's clear the professionals yield a better result, they average a time that's over two seconds faster than the decathletes, but is this difference statistically significant?
 
@@ -238,7 +238,7 @@ hundred_m[[4]]
 
 ## Step 4 - Conclusion
 
-The resulting p-value is far smaller than our significance level (0.05). This means we can strongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the professional olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and professional sprinters is more than two seconds. This probably isn't a surprising result, winning an olympic medal in the 100m sprint is no mean feat. 
+The resulting p-value is far smaller than our significance level (0.05). This means we can strongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the professional Olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and professional sprinters is more than two seconds. This probably isn't a surprising result, winning an Olympic medal in the 100m sprint is reserved for the most elite sprinters. 
 
 So can we conclude that King Gustav was wrong when he declared Jim Thorpe the "greatest athlete in the world"? Well, sprinting is just one area of the decathlon, so let's perform a similar test for two completely different decathlon events; high jump (jumping) and discus (throwing).
 
@@ -280,7 +280,7 @@ knitr::kable(
 ```
 
 
-It turns out the decathletes average significantly lower scores than the olympic athletes. For the high jump, the true difference between the decathletes and Olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantastic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against olympic champions. Sorry, Jim.
+It turns out the decathletes average significantly lower scores than the Olympic athletes. For the high jump, the true difference between the decathletes and Olympians mean score is more than 16cm. For the discus, the true difference is more than 15 metres. Therefore it's probably fair to say King Gustav was incorrect, or at least not entirely correct. While Jim Thorpe was a fantastic athlete, he wouldn't have stood much of a chance when running, jumping, or throwing against Olympic champions. Sorry, Jim.
 
 
 # Decathletes by Continent
