@@ -166,7 +166,9 @@ We'll then investigate whether there is a difference in performance between cont
 summary_totalpoints <- summary(Decathlon$total_points)
 ```
 
-The decathlon dataset records the performance of decathletes between 1986 and 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes. The points and result for each of the ten events is given and the total points column indicates their performance across all events. The person with the highest total points after the ten events is crowned the winner. The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. The histogram of total points shows a positive skew, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+The decathlon dataset records the performance of decathletes between 1986 and 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes from `r nlevels(original_decathlon$Nationality)` countries. The points and result for each of the ten events is given and the total points column indicates their performance across all events. Only those who scored over 6800 total points are included in the dataset. The decathlete with the highest total points after the ten events is crowned the winner. 
+
+The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. The histogram of total points shows a positive skew, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
 
 ```{r fig.width=6, fig.height=4}
 print(summary_totalpoints)
@@ -181,7 +183,7 @@ The name and data type of each variable can be found in [Appendix A]. They can b
 2. `m100` to `m1500` represent their result in each of the 10 events. The units are relevant to the activity e.g. metres, seconds.
 3. `P100m` to `P1500` represent the number of points they scored for each of the 10 events.
 
-We can also view the distribution of points scored in each of the 10 events to understand if certain events more difficult to score points in. The red dotted line shows the median across all 10 events.
+We can also view the distribution of points scored in each of the 10 events to understand if certain events prove more difficult to score points in. The red dotted line shows the median across all 10 events.
 
 ```{r}
 ggplot(decathlon_data) + 
@@ -192,8 +194,7 @@ ggplot(decathlon_data) +
   labs(x = "")
 ```
 
-We can see events that involve throwing such as Javelin, Polevault, Shotput and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points.
-
+We can see events that involve throwing such as Javelin, Polevault, Shotput and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points. 
 
 
 # Decathletes vs Olympic Medalists
@@ -359,7 +360,8 @@ kruskal_res <- kruskal.test(formula = avg_points ~ continent, data = points_by_c
 points_by_continent %>% 
   ggplot(aes(continent, avg_points)) +
   geom_boxplot() +
-  labs(x = "")
+  labs(x = "",
+       y = "Average Total Points by Decathlete")
 ```
 
 It also requires independence of observations within and between groups. That is, no decathlete can appear more than once in the data. As it stands we are violating this condition, many decathletes have competed over multiple years which means the observations are not considered independent. To overcome this we can average each decathletes score across all their decathlons and that points total will form an observation. Therefore we now have `r nrow(points_by_continent)` observations, one for each unique decathlete. As with all statistical tests we will define the hypothesis and construct the test before consulting the data. 
@@ -435,6 +437,16 @@ Meanwhile, Eurasia seem to be the continent that produces the best decathletes, 
 
 
 \newpage
+
+# References
+
+Brown, M. B and Forsythe, A. B. 1974. Robust Tests for the Equality of Variances. Journal of the American Statistical Association (69), pp. 364-367.
+
+Wickham, H and Grolemund, G. 2016. R for Data Science. USA: O'Reilly Media.
+
+Wikipedia. 2019. Jim Thorpe. Available at: https://en.wikipedia.org/wiki/Jim_Thorpe [Accessed: 3 December 2019]
+
+Laerd Statistics. 2019. Kruskal-Wallis H Test using SPSS Statistics. Available at: https://statistics.laerd.com/spss-tutorials/kruskal-wallis-h-test-using-spss-statistics.php [Accessed: 10 December 2019]
 
 # Appendices
 
