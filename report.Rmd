@@ -172,9 +172,9 @@ The analysis has been produced using R and the report has been compiled using RM
 summary_totalpoints <- summary(Decathlon$total_points)
 ```
 
-The decathlon dataset records the performance of decathletes between 1986 and 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes from `r nlevels(original_decathlon$Nationality)` countries. The points and result for each of the ten events is given and the total points column indicates their performance across all events. Only those who scored over 6800 total points are included in the dataset. The decathlete with the highest total points after the ten events is crowned the winner. 
+The decathlon dataset records the performance of decathletes between 1986 and 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes from `r nlevels(original_decathlon$Nationality)` countries. The points and result for each of the ten events is given and the total points column indicates their performance across all events. Only those who scored over 6,800 total points are included in the dataset. The decathlete with the highest total points after the ten events is crowned the winner. 
 
-The average total points tally, by median, is `r round(summary_totalpoints[[3]])` with half of all athlete's scoring between `r round(summary_totalpoints[[2]])` and `r round(summary_totalpoints[[4]])`. The histogram of total points shows a positive skew, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+The average total points tally, by median, is `r round(summary_totalpoints[[3]]) %>% comma()` with half of all athlete's scoring between `r round(summary_totalpoints[[2]]) %>% comma()` and `r round(summary_totalpoints[[4]]) %>% comma()`. The histogram of total points shows a positive skew, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
 
 ```{r fig.width=6, fig.height=4}
 print(summary_totalpoints)
@@ -200,8 +200,39 @@ ggplot(decathlon_data) +
   labs(x = "")
 ```
 
-We can see events that involve throwing such as Javelin, Polevault, Shotput and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points. 
+We can see events that involve throwing such as Javelin, Polevault, Shotput and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points. This may mean the decathletes are more likely to compete with Olympians in a running event than a throwing event.
 
+In the [Decathletes by Continent] section we'll investigate if there is a significant difference between decathletes from different continent. The table below shows the average total points by continent, as well as standard deviation and sample size. 
+
+```{r, include=FALSE}
+name_continent_lookup <- 
+  Decathlon %>% 
+  as_tibble() %>%
+  left_join(continent_lookup, c("nationality" = "country_code")) %>% 
+  select(name, continent) %>%
+  distinct(name, .keep_all = TRUE)
+
+points_by_continent <- 
+  Decathlon %>% 
+  as_tibble() %>%
+  group_by(name) %>% 
+  summarise(avg_points = mean(total_points)) %>% 
+  left_join(name_continent_lookup, by = "name") %>% 
+  mutate(continent = as.factor(continent))
+
+continent_summary <- 
+  points_by_continent %>% 
+  group_by(continent) %>% 
+  summarise(mean = mean(avg_points),
+            sd = sd(avg_points),
+            n = n())
+```
+
+```{r}
+knitr::kable(continent_summary %>% arrange(mean) %>% rename(Continent = continent, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 2)
+```
+
+This table suggests that Asia are the lowest performing continent and Eurasia are the highest performing. But can we consider these results statistically significant?
 
 # Decathletes vs Olympic Medalists
 
@@ -223,7 +254,7 @@ We'll start with the 100m sprint, testing if decathletes are significantly slowe
 
 ```{r}
 hundred_m <- events_to_compare('100M Men', '100m', 'greater')
-knitr::kable(hundred_m[[2]])
+knitr::kable(hundred_m[[2]] %>% rename(`Athlete Type` = athlete_type, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 3)
 ```
 
 
@@ -336,29 +367,7 @@ As we're looking to compare the means between three or more groups, that suggest
 The Kruskal-Wallis rank sum test is considered the non-parametric equivalent of one-way ANOVA. It assumes  each group (ie continent) has the same shape. This can be checked with a simple boxplot which confirms the assumption holds.
 
 ```{r include=FALSE}
-name_continent_lookup <- 
-  Decathlon %>% 
-  as_tibble() %>%
-  left_join(continent_lookup, c("nationality" = "country_code")) %>% 
-  select(name, continent) %>%
-  distinct(name, .keep_all = TRUE)
-
-points_by_continent <- 
-  Decathlon %>% 
-  as_tibble() %>%
-  group_by(name) %>% 
-  summarise(avg_points = mean(total_points)) %>% 
-  left_join(name_continent_lookup, by = "name") %>% 
-  mutate(continent = as.factor(continent))
-
-continent_summary <- 
-  points_by_continent %>% 
-  group_by(continent) %>% 
-  summarise(mean = mean(avg_points),
-            sd = sd(avg_points),
-            n = n())
-
-# run kruskal-wallis test - define sig level before (supposedly) running test!
+# run kruskal-wallis test
 kruskal_res <- kruskal.test(formula = avg_points ~ continent, data = points_by_continent)
 ```
 
@@ -405,13 +414,6 @@ kruskal_res
 Our test statistic (`r round(kruskal_res[[1]][[1]], 3)`) greatly exceeds our critical value (12.592) which means we can strongly reject $H_0$ in favour of $H_1$. This is also confirmed by our p-value being far smaller than our significance level of 0.05. We can interpret this as at least two continents show a significant difference in points scored. This means that at least one continent is better than one other continent. But we can't conclude yet which continents these are. For that we have to perform post hoc tests.
 
 ## Step 5 - Post hoc tests
-
-For context the average points by continent table below shows how each continent compares. This doesn't tell us if the difference in points scored are statistically significantly different from one another. To do this we need to perform pairwise comparisons. 
-
-```{r}
-continent_summary %>% arrange(mean)
-```
-
 
 To compare continents we could run several pairwise comparisons using the Mann-Whitney sum of ranks test. This is the non-parametric equivalent of the two sample t-test. However, this can prove time consuming when comparing seven groups. Therefore, a more suitable post hoc test is Connover & Iman's procedure for multiple comparisons. 
 
