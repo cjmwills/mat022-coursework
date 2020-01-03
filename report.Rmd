@@ -160,6 +160,12 @@ We'll then investigate whether there is a difference in performance between cont
 
 # Background
 
+Decathlon has long been an interesting event. It's one of few sports that requires an athlete to compete across such a variety of events. With so many component parts making up a decathlete's final points tally, it seems certain that a story lies hidden within the data. This report aims to view the decathlon through a statistical lens, discovering insight about previously unseen features, before trying to quantify whether decathletes are truly jack of all trades, or simply masters of none.
+
+There are many preconceptions about which corner of the globe produces the best athletes. Jamaica have a history of talented sprinters, the USA perform strongly in a variety of events, and more recently China have announced themselves on the world athletics stage. This report aims to provide a statistically sound answer to the question; who produces the best decathletes? 
+
+The analysis has been produced using R and the report has been compiled using RMarkdown. Key concepts have been taken from Wickham and Grolemund (2016) who authored a collection of R packages called the `tidyverse`. These packages share a common Application Programming Interface (API) allowing for a consistent and reproducbible programming style.
+
 # Exploratory Data Analysis
 
 ```{r}
@@ -435,10 +441,17 @@ Meanwhile, Eurasia seem to be the continent that produces the best decathletes, 
 
 # Conclusion
 
+The first question this report looked at whether decathletes are as good as Olympians in individual events. It was found that Olympians achieved statistically significantly better results than decathletes at 100m, Discus and High Jump. Three seprate t-tests were conducted to reach this conclusion. To further this analysis a t-test could be ran for each of the ten events. We could also have grouped the events in the decathlon into throwing, running and jumping, before comparing those groups with the Olympians.
+
+The second question was looking at which continent produced the best decathletes. To answer this a Kruskal-Wallis test was conducted as a non-parametric alternative to the One-Way ANOVA, as the assumption of normality did not hold. The outcome of this test showed there was a significant difference between at least two of the continents. A Conover & Iman post hoc test seemed to show that Asia were the lowest performing continent, averaging lower points scored than any other coninent. Meanwhile, Eurasia appeared to be the highest performing contninent. However, as it's not an officially recognised continent it provides somewhat limited information.
+
+A larger sample size for the Olympic data would likely have improved the analysis. Due to the proportionately smaller Olympic data it meant it was hard to verify important assumptions needed for the t-test. For example that both samples come from populations with equal variance.
 
 \newpage
 
 # References
+
+R Core Team (2019). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 
 Brown, M. B and Forsythe, A. B. 1974. Robust Tests for the Equality of Variances. Journal of the American Statistical Association (69), pp. 364-367.
 
