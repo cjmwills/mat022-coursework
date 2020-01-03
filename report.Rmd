@@ -35,6 +35,9 @@ library(lawstat)
 library(PMCMR)
 
 # ensure consistent column names are used for each event with either a r_* or p_* prefix representing result (in whichever unit the event is measured in) and points (a standardised measure across the events). This can then be used to transform the data to tidy form. 
+
+original_decathlon <- Decathlon
+
 colnames(Decathlon) <- 
   c("total_points", "name", "nationality",
     "r_100m", "r_long_jump", "r_shotput",
@@ -132,6 +135,12 @@ events_to_compare <- function(olympic_event, decathlon_event, tail){
 }
 ```
 
+# Abstract
+
+Abstract TBC
+
+\newpage
+
 # Introduction
 
 ```{r out.width='20%', out.height='20%', fig.align='center'}
@@ -149,7 +158,9 @@ King Gustav of Sweden declared when he handed the winner's prize to Jim Thorpe a
 
 We'll then investigate whether there is a difference in performance between continents. If there is we'll dive further into which continents have produced the best decathletes and speculate on potential reasons for this. Descriptive analysis will be carried out before this to better understand the data we are working with and a conclusion will be provided after to summarise the findings. 
 
-# Descriptive Analysis
+# Background
+
+# Exploratory Data Analysis
 
 ```{r}
 summary_totalpoints <- summary(Decathlon$total_points)
@@ -163,6 +174,27 @@ ggplot(Decathlon) +
   geom_histogram(aes(total_points), bins = 15) +
   labs(x = 'Total Points', y = 'Count')
 ```
+
+The name and data type of each variable can be found in [Appendix A]. They can broadly be split into three groups;
+
+1. `DecathleteName`, `Nationality`, and `yearEvent` all provide additional information about the athlete and the event they took part in.
+2. `m100` to `m1500` represent their result in each of the 10 events. The units are relevant to the activity e.g. metres, seconds.
+3. `P100m` to `P1500` represent the number of points they scored for each of the 10 events.
+
+We can also view the distribution of points scored in each of the 10 events to understand if certain events more difficult to score points in. The red dotted line shows the median across all 10 events.
+
+```{r}
+ggplot(decathlon_data) + 
+  geom_boxplot(aes(reorder(event, -points), points), outlier.shape = NA) +
+  coord_flip() +
+  geom_hline(yintercept = median(decathlon_data$points),
+             colour = "red", linetype = "dotted", size = 1) +
+  labs(x = "")
+```
+
+We can see events that involve throwing such as Javelin, Polevault, Shotput and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points.
+
+
 
 # Decathletes vs Olympic Medalists
 
@@ -399,4 +431,15 @@ It can be difficult to summarise multiple comparisons tests succinctly but this 
 
 Meanwhile, Eurasia seem to be the continent that produces the best decathletes, showing statistically significant gaps to Asia, Europe, and South America. Towards the end of the cold war the Soviet Union, which makes up a high proportion of the Eurasia group, had a lot of success in track and field events and plenty of money was invested in it. This may explain why they appear to be the most successful continent in the decathlon. 
 
-*reference this article https://statistics.laerd.com/spss-tutorials/kruskal-wallis-h-test-using-spss-statistics.php*
+# Conclusion
+
+
+\newpage
+
+# Appendices
+
+## Appendix A
+
+```{r}
+glimpse(original_decathlon)
+```
