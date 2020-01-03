@@ -1,2 +1,4 @@
 Brown, M. B and Forsythe, A. B. 1974. Robust Tests for the Equality of Variances. Journal of the American Statistical Association (69), pp. 364-367.
+Wickham, H and Grolemund, G. 2016. R for Data Science. USA: O'Reilly Media.
 Wikipedia. 2019. Jim Thorpe. Available at: https://en.wikipedia.org/wiki/Jim_Thorpe [Accessed: 3 December 2019]
+Laerd Statistics. 2019. Kruskal-Wallis H Test using SPSS Statistics. Available at: https://statistics.laerd.com/spss-tutorials/kruskal-wallis-h-test-using-spss-statistics.php [Accessed: 10 December 2019]
