@@ -145,14 +145,13 @@ It also looks at the total points scored by continent in an attempt to understan
 
 # Introduction
 
-```{r out.width='20%', out.height='20%', fig.align='center'}
+```{r out.width='30%', out.height='30%', fig.align='center', fig.cap="Jim Thorpe, 1912 Olympic gold medalist."}
 knitr::include_graphics("jim_thorpe.jpg")
 ```
-\centerline{\tiny{Figure 1: Jim Thorpe, 1912 Olympic gold medalist.}}
 
 \  
 
-\centerline{\large{"You, sir, are the greatest athlete in the world"}}
+\centerline{\LARGE{"You, sir, are the greatest athlete in the world"}}
 
 \  
 
@@ -178,12 +177,16 @@ The decathlon dataset records the performance of decathletes between 1985 and 20
 
 The average total points tally, by median, is `r round(summary_totalpoints[[3]]) %>% comma()` with half of all athlete's scoring between `r round(summary_totalpoints[[2]]) %>% comma()` and `r round(summary_totalpoints[[4]]) %>% comma()`. The histogram of total points shows a positive skew, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
 
-```{r out.width='75%'}
+```{r}
 print(summary_totalpoints)
+```
+
+```{r out.width='75%', fig.cap="\\label{fig:points_hist}Histogram showing distribution of total points."}
 ggplot(Decathlon) + 
   geom_histogram(aes(total_points), bins = 15) +
   labs(x = 'Total Points', y = 'Count')
 ```
+
 
 The name and data type of each variable can be found in the [Appendix]. They can broadly be split into three groups;
 
@@ -193,7 +196,7 @@ The name and data type of each variable can be found in the [Appendix]. They can
 
 We can also view the distribution of points scored in each of the 10 events to understand if certain events prove more difficult to score points in. The red dotted line shows the median points score across all 10 events.
 
-```{r, out.width='75%', fig.align='center'}
+```{r, out.width='75%', fig.align='center', fig.cap="Boxplot of points scored by event."}
 ggplot(decathlon_data) + 
   geom_boxplot(aes(reorder(event, -points), points), outlier.shape = NA) +
   coord_flip() +
@@ -231,7 +234,7 @@ continent_summary <-
 ```
 
 ```{r}
-knitr::kable(continent_summary %>% arrange(mean) %>% rename(Continent = continent, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 2)
+knitr::kable(continent_summary %>% arrange(mean) %>% rename(Continent = continent, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 2, caption = "Summary of total points by continent")
 ```
 
 This table suggests that Asia are the lowest performing continent and Eurasia are the highest performing. But can we consider these results statistically significant?
@@ -256,7 +259,7 @@ We'll start with the 100m sprint, testing if decathletes are significantly slowe
 
 ```{r}
 hundred_m <- events_to_compare('100M Men', '100m', 'greater')
-knitr::kable(hundred_m[[2]] %>% rename(`Athlete Type` = athlete_type, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 3)
+knitr::kable(hundred_m[[2]] %>% mutate(athlete_type = ifelse(athlete_type == "decathlete", "Decathlete", "Olympian")) %>% rename(`Athlete Type` = athlete_type, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 3, caption = "Summary of 100m sprint time for decathletes and olympians.")
 ```
 
 
@@ -277,7 +280,7 @@ We're going to perform a one-tailed, two-sample t-test using the conventional 5%
 
 Let's check these two assumptions hold true for our data. To check for normality, a simple Q-Q (Quantile-Quantile) plot can be used.
 
-```{r fig.width=4, fig.show='hold'}
+```{r fig.width=4, fig.show='hold', fig.cap="Quantile-Quantile plot to test for normality of data."}
 
 qqnorm(y = filter(hundred_m[[1]], athlete_type == 'professional')$result)
 qqline(filter(hundred_m[[1]], athlete_type == 'professional')$result,
@@ -320,11 +323,13 @@ The High jump and Discus satisfy the same assumptions as above and yield the fol
 discus <- events_to_compare('Discus Throw Men', 'discus', 'less')
 knitr::kable(discus[[2]] %>% 
                mutate(mean = round(mean, 3),
-                      sd = round(sd, 3)) %>% 
+                      sd = round(sd, 3)) %>%
+               mutate(athlete_type = ifelse(athlete_type == "decathlete", "Decathlete", "Olympian")) %>% 
                rename(Discus = athlete_type,
                       Mean = mean,
                       `Std Dev` = sd,
-                      `Sample Size` = n))
+                      `Sample Size` = n),
+             caption = "Summary of distance decathletes and olympians throw the discus.")
 ```
 
 ```{r}
@@ -332,10 +337,12 @@ high_jump <- events_to_compare('High Jump Men', 'high_jump', 'less')
 knitr::kable(high_jump[[2]] %>% 
                mutate(mean = round(mean, 3),
                       sd = round(sd, 3)) %>% 
+               mutate(athlete_type = ifelse(athlete_type == "decathlete", "Decathlete", "Olympian")) %>% 
                rename(`High Jump` = athlete_type,
                       Mean = mean,
                       `Std Dev` = sd,
-                      `Sample Size` = n))
+                      `Sample Size` = n),
+             caption = "Summary of height decathletes and olympians reach on the high jump.")
 ```
 
 Using the same hypothesis and significance level as above, we get the following results:
@@ -348,7 +355,7 @@ knitr::kable(
   `Lower Conf Int` = c(discus[[4]]$conf.int[1], high_jump[[4]]$conf.int[1]),
        `Upper Conf Int` = c(discus[[4]]$conf.int[2], high_jump[[4]]$conf.int[2]) %>% round(3)
        )
-)
+, caption = "Result of t-test for Discus and High jump events.")
 ```
 
 
@@ -364,7 +371,7 @@ To answer this we need a country to continent lookup table, this has been source
 - Decathletes have represented countries that are no longer officially recognised. For example; the Soviet Union and East and West Germany. In an attempt not to lose data these countries have been mapped to the most appropriate continent based on their new country name. For example West Germany maps to Germany which maps to Europe.
 - Countries that span multiple continents, namely Europe and Asia, meant it impossible to classify as one or the other. All these cases occurred in Eurasia which has subsequently formed it's own group, despite not being an officially recognised continent. 
 
-As we're looking to compare the means between three or more groups, that suggests a one-way ANOVA test may be sensible. The assumptions are similar to those of the t-test we performed earlier. Firstly, the underlying distributions are assumed to be normal. As seen in [Introduction] the Total Points variable is not normally distributed, it's positively skewed. Therefore we aren't able to use one-way ANOVA and will instead need to use a non-parametric alternative which makes no assumption about the underlying distribution.
+As we're looking to compare the means between three or more groups, that suggests a one-way ANOVA test may be sensible. The assumptions are similar to those of the t-test we performed earlier. Firstly, the underlying distributions are assumed to be normal. As seen in Figure \ref{fig:points_hist} the total points variable is not normally distributed, it's positively skewed. Therefore we aren't able to use one-way ANOVA and will instead need to use a non-parametric alternative which makes no assumption about the underlying distribution.
 
 The Kruskal-Wallis rank sum test is considered the non-parametric equivalent of one-way ANOVA. It assumes  each group (ie continent) has the same shape. This can be checked with a simple boxplot which confirms the assumption holds.
 
@@ -373,12 +380,12 @@ The Kruskal-Wallis rank sum test is considered the non-parametric equivalent of 
 kruskal_res <- kruskal.test(formula = avg_points ~ continent, data = points_by_continent)
 ```
 
-```{r, out.width='75%', fig.align='center'}
+```{r, out.width='75%', fig.align='center', fig.cap="Average total points by continent"}
 points_by_continent %>% 
   ggplot(aes(continent, avg_points)) +
   geom_boxplot() +
   labs(x = "",
-       y = "Average Total Points by Decathlete")
+       y = "Points")
 ```
 
 It also requires independence of observations within and between groups. That is, no decathlete can appear more than once in the data. As it stands we are violating this condition, many decathletes have competed over multiple years which means the observations are not considered independent. To overcome this we can average each decathletes score across all their decathlons and that points total will form an observation. Therefore we now have `r nrow(points_by_continent)` observations, one for each unique decathlete. As with all statistical tests we will define the hypothesis and construct the test before consulting the data. 
