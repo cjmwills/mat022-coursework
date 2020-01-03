@@ -137,7 +137,9 @@ events_to_compare <- function(olympic_event, decathlon_event, tail){
 
 # Abstract
 
-Abstract TBC
+This report studies the results of top performances in the Decathlon between 1985 and 2006. It compares the performance of the decathletes with Olympic medalists in three individual events; 100m, discus and high jump. It concludes that the decathletes are not as good as the Olympic medalists by running a t-test. 
+
+It also looks at the total points scored by the continent the decathlete is from in an attempt to understand if which continent produces the best and worst decathletes. It finds that the lowest performing decathletes come from Asia and the highest performing from Eurasia. 
 
 \newpage
 
@@ -371,7 +373,7 @@ The Kruskal-Wallis rank sum test is considered the non-parametric equivalent of 
 kruskal_res <- kruskal.test(formula = avg_points ~ continent, data = points_by_continent)
 ```
 
-```{r}
+```{r, out.width='75%', fig.align='center'}
 points_by_continent %>% 
   ggplot(aes(continent, avg_points)) +
   geom_boxplot() +
@@ -417,7 +419,7 @@ Our test statistic (`r round(kruskal_res[[1]][[1]], 3)`) greatly exceeds our cri
 
 To compare continents we could run several pairwise comparisons using the Mann-Whitney sum of ranks test. This is the non-parametric equivalent of the two sample t-test. However, this can prove time consuming when comparing seven groups. Therefore, a more suitable post hoc test is Connover & Iman's procedure for multiple comparisons. 
 
-Another consideration we have to make is around unintentionally inflating the risk of Type I error. If we are making multiple comparisons between groups using significance level $\alpha = 0.05$ we'd only have to make 20 comparisons before we would expect to incorrectly reject $H_0$. Therefore we have to make an adjustment to our significance level. For the Conover & Iman procedure we will use the Bonferonni correction. This is calculated by dividing the original significance level by the number of comparisons we are making. We have seven continents which means we'll be making 21 comparisons. Therefore our corrected significance level is $0.05 \div 21 = 0.002$ (3dp).
+Another consideration we have to make is around unintentionally inflating the risk of Type I error. If we are making multiple comparisons between groups using significance level $\alpha = 0.05$ we'd only have to make $1 \div 0.05 = 20$ comparisons before we would expect to incorrectly reject $H_0$. Therefore we have to make an adjustment to our significance level. For the Conover & Iman procedure we will use the Bonferonni correction. This is calculated by dividing the original significance level by the number of comparisons we are making. We have seven continents which means we'll be making 21 comparisons. Therefore our corrected significance level is $0.05 \div 21 = 0.002$ (3dp).
 
 To be explicit our hypotheses for these comparisons are:
 
