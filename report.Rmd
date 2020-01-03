@@ -188,7 +188,7 @@ ggplot(Decathlon) +
 ```
 
 
-The name and data type of each variable can be found in the [Appendix]. They can broadly be split into three groups;
+The name and data type of each variable can be found in the [Appendix A]. They can broadly be split into three groups;
 
 1. `DecathleteName`, `Nationality`, and `yearEvent` all provide additional information about the athlete and the event they took part in.
 2. `m100` to `m1500` represent their result in each of the 10 events. The units are relevant to the activity e.g. metres, seconds.
@@ -278,18 +278,15 @@ We're going to perform a one-tailed, two-sample t-test using the conventional 5%
 - The measurements in each population follow a normal distribution.
 - The populations the samples came from have equal variance.
 
-Let's check these two assumptions hold true for our data. To check for normality, a simple Q-Q (Quantile-Quantile) plot can be used.
+Let's check these two assumptions hold true for our data. To check for normality, a simple Q-Q (Quantile-Quantile) plot can be used. Below is the Q-Q plot for the decathletes. The second Q-Q plot, for the olympians, can be found in [Appendix B].
 
-```{r fig.width=4, fig.show='hold', fig.cap="Quantile-Quantile plot to test for normality of data."}
-
-qqnorm(y = filter(hundred_m[[1]], athlete_type == 'professional')$result)
-qqline(filter(hundred_m[[1]], athlete_type == 'professional')$result,
-       col = "steelblue", lwd = 2)
-
+```{r out.width="75%", fig.cap="Quantile-Quantile plot for decathletes."}
 qqnorm(y = filter(hundred_m[[1]], athlete_type == 'decathlete')$result)
 qqline(filter(hundred_m[[1]], athlete_type == 'decathlete')$result,
          col = "steelblue", lwd = 2)
 ```
+
+
 
 The points on both plots lie close to the blue line, which represents a theoretical normal Q-Q plot. Therefore we can be satisfied the first assumption of normality holds true. To check the populations of both samples have equal variance we can perform Levene's test. This is also a hypothesis test, therefore we need to define the hypothesis and then run the test:
 
@@ -472,8 +469,18 @@ Wikipedia. 2019. Jim Thorpe. Available at: https://en.wikipedia.org/wiki/Jim_Tho
 
 Laerd Statistics. 2019. Kruskal-Wallis H Test using SPSS Statistics. Available at: https://statistics.laerd.com/spss-tutorials/kruskal-wallis-h-test-using-spss-statistics.php [Accessed: 10 December 2019]
 
-# Appendix
+# Appendices
+
+## Apendix A
 
 ```{r}
 glimpse(original_decathlon)
+```
+
+## Appendix B
+
+```{r, fig.cap="Quantile-Quantile plot for olympians"}
+qqnorm(y = filter(hundred_m[[1]], athlete_type == 'professional')$result)
+qqline(filter(hundred_m[[1]], athlete_type == 'professional')$result,
+       col = "steelblue", lwd = 2)
 ```
