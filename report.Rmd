@@ -173,9 +173,9 @@ The analysis has been produced using R and the report has been compiled using RM
 summary_totalpoints <- summary(Decathlon$total_points)
 ```
 
-The decathlon dataset records the performance of decathletes between 1985 and 2006. It has `r comma(nrow(Decathlon))` observations with data for `r comma(length(unique(Decathlon$name)))` unique decathletes from `r nlevels(original_decathlon$Nationality)` countries. The points and result for each of the ten events is given and the total points column indicates their performance across all events. Only those who scored over 6,800 total points are included in the dataset. The decathlete with the highest total points after the ten events is crowned the winner. 
+The decathlon dataset records the performance of decathletes between 1985 and 2006. It has `r comma(nrow(Decathlon))` observations with no missing data and `r comma(length(unique(Decathlon$name)))` unique decathletes from `r nlevels(original_decathlon$Nationality)` countries. The points and result for each of the ten events is given and the total points column indicates their performance across all events. Only those who scored over 6,800 total points are included in the dataset. The decathlete with the highest total points after the ten events is crowned the winner. 
 
-The average total points tally, by median, is `r round(summary_totalpoints[[3]]) %>% comma()` with half of all athlete's scoring between `r round(summary_totalpoints[[2]]) %>% comma()` and `r round(summary_totalpoints[[4]]) %>% comma()`. The histogram of total points shows a positive skew, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
+The average total points tally, by median, is `r round(summary_totalpoints[[3]]) %>% comma()` with half of all athlete's scoring between `r round(summary_totalpoints[[2]]) %>% comma()` and `r round(summary_totalpoints[[4]]) %>% comma()`. The histogram of total points shows a positive skew, which can also be seen by the mean exceeding the median, where we see more observations on the right tail of the graph. These are the athlete's with the highest points tally, who are likely to have won the decathlon.
 
 ```{r}
 print(summary_totalpoints)
@@ -196,7 +196,7 @@ The name and data type of each variable can be found in the [Appendix A]. They c
 
 We can also view the distribution of points scored in each of the 10 events to understand if certain events prove more difficult to score points in. The red dotted line shows the median points score across all 10 events.
 
-```{r, out.width='75%', fig.align='center', fig.cap="Boxplot of points scored by event."}
+```{r, out.width='75%', fig.align='center', fig.cap="\\label{fig:points_box}Boxplot of points scored by event."}
 ggplot(decathlon_data) + 
   geom_boxplot(aes(reorder(event, -points), points), outlier.shape = NA) +
   coord_flip() +
@@ -205,9 +205,9 @@ ggplot(decathlon_data) +
   labs(x = "")
 ```
 
-Events that involve throwing such as Javelin, Pole vault, Shot put and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points. This may suggest decathletes are more likely to compete with olympians in a running event than a throwing event.
+Events that involve throwing such as Javelin, Shot put and Discus tend to yield a lower points score. Meanwhile track events such as 400 metres, 100 metres, and 110 metre hurdles are where the decathletes collect the most points. This may suggest that running events are easier to score points in. However it may also suggest these are the events decathletes perform best in and are therefore more likely to compete with olympians in a running event than a throwing event.
 
-In the [Decathletes by Continent] section we'll investigate if there is a significant difference between decathletes from different continents. The table below shows the average total points by continent, as well as standard deviation and sample size. 
+In the [Decathletes by Continent] section we'll investigate if there is a significant difference between decathletes from different continents. It is also explained in this section how the continent groups were formed. The table below shows the average total points by continent, as well as standard deviation and sample size. 
 
 ```{r, include=FALSE}
 name_continent_lookup <- 
@@ -237,15 +237,15 @@ continent_summary <-
 knitr::kable(continent_summary %>% arrange(mean) %>% rename(Continent = continent, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 2, caption = "Summary of total points by continent")
 ```
 
-This table suggests that Asia are the lowest performing continent and Eurasia are the highest performing. But can we consider these results statistically significant?
+This table suggests that Asia are the lowest performing continent and Eurasia are the highest performing. However, Eurasia show the highest spread of observations shown by their standard deviation, while Asia have the lowest standard deviation. Therefore could we consider these differences statistically significant? If you'd like to read about the results of the analysis by continent skip to the [Decathletes by Continent] section.
 
 # Decathletes vs Olympic Medalists
 
 So can we consider decathletes the best athletes in the world? To answer this we need to compare the decathletes performance with professionals in respective events. If a decathlete can claim to be the best athlete in the world, they should be at least as good as athletes that focus only on one event. Should the data show there is no statistical significance between results of decathletes and professionals, then it's fair to conclude King Gustav was correct when he declared Jim Thorpe "the greatest athlete in the world" after his gold medal in the decathlon in 1912.
 
-To make this comparison we'll need an additional dataset. We'll use an Olympic track and field dataset from Kaggle. This has the result of every athletic event at the Olympic games between 1896 and 2016. This data was originally web scraped from the official Olympic website. It's important to briefly discuss potential limitations with this data:
+To make this comparison we'll need an additional dataset. We'll use an Olympic track and field dataset from Kaggle. This has the result of every athletic event at the Olympic games between 1896 and 2016. This data was originally web scraped from the official Olympic website. It has results for both male and female olympians. As the decathlon is a male only event we will filter the Olympic dataset to include on males. This will ensure the we're comparins like-for-like groups. It's important to briefly discuss potential limitations with this data:
 
-- It was compiled by a third party. I have reviewed the code used to collate the data, but it's still possible errors have occurred during the process.
+- It was compiled by a third party and results from the 1988 Olympics are missing. While I have reviewed the code used to collate the data it's still possible other errors or exlusions have occurred.
 - It includes results at Olympic games, these only occur every four years. This leads to a smaller sample than the decathlon dataset offers when comparing similar time periods.
 - It covers a different range of years than the decathlon dataset.
 - It only records the results of the medalists (gold, silver and bronze). This means the results are for only the three best performers in each event.
@@ -257,12 +257,6 @@ To overcome these limitations we'll need to make a few adjustments:
 
 We'll start with the 100m sprint, testing if decathletes are significantly slower than Olympic sprinters. To do this we'll use a two-sample t-test. This compares the mean of two groups and tests to see if they are significantly different from each other. The table below shows the average 100m time for the decathletes and the olympians. It's clear the olympians yield a better result, they average a time that's over two seconds faster than the decathletes, but is this difference statistically significant?
 
-```{r}
-hundred_m <- events_to_compare('100M Men', '100m', 'greater')
-knitr::kable(hundred_m[[2]] %>% mutate(athlete_type = ifelse(athlete_type == "decathlete", "Decathlete", "Olympian")) %>% rename(`Athlete Type` = athlete_type, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 3, caption = "Summary of 100m sprint time for decathletes and olympians.")
-```
-
-
 ## Step 1 - Define the hypothesis
 
 It's important we do this before consulting the data. If not, we risk potentially biasing the results by choosing parameters that fit our agenda. Here we are trying to determine if decathletes are significantly slower than Olympic sprinters in the 100m. Therefore we will test the following hypothesis:
@@ -273,20 +267,21 @@ $H_1: \mu_D > \mu_P$ (The mean 100m time is greater for the decathletes than it 
 
 ## Step 2 - Construct the test
 
-We're going to perform a one-tailed, two-sample t-test using the conventional 5% significance level. The t-test compares the means from two independent samples and assumes that:
+We're going to perform a one-tailed, two-sample t-test using the conventional 5% significance level. We have chosen a one-tailed test as we are assuming the decathletes will not be faster than the olympians. The t-test compares the means from two independent samples and assumes that:
 
+- The observations are independent between each group.
 - The measurements in each population follow a normal distribution.
 - The populations the samples came from have equal variance.
 
-Let's check these two assumptions hold true for our data. To check for normality, a simple Q-Q (Quantile-Quantile) plot can be used. Below is the Q-Q plot for the decathletes. The second Q-Q plot, for the olympians, can be found in [Appendix B].
+We can assume the first assumption holds as it's extremely unlikely, if not impossible, that an athlete could compete in two completely separate events in one Olympic games. Now let's check if the other two assumptions hold true for our data. To check for normality, a simple Q-Q (Quantile-Quantile) plot can be used. Below is the Q-Q plot for the decathletes. The second Q-Q plot, for the olympians, can be found in [Appendix B].
 
 ```{r out.width="75%", fig.cap="Quantile-Quantile plot for decathletes."}
+hundred_m <- events_to_compare('100M Men', '100m', 'greater')
+
 qqnorm(y = filter(hundred_m[[1]], athlete_type == 'decathlete')$result)
 qqline(filter(hundred_m[[1]], athlete_type == 'decathlete')$result,
          col = "steelblue", lwd = 2)
 ```
-
-
 
 The points on both plots lie close to the blue line, which represents a theoretical normal Q-Q plot. Therefore we can be satisfied the first assumption of normality holds true. To check the populations of both samples have equal variance we can perform Levene's test. This is also a hypothesis test, therefore we need to define the hypothesis and then run the test:
 
@@ -304,13 +299,19 @@ The resulting p-value of the test is `r round(hundred_m[[3]][['p.value']], 3)` (
 
 ## Step 3 - Perform the test
 
+Now we've constructed our test and selected our parameters we can consult that data and perform the test. Below is a table with a summary of both groups being compared. Showing that decathletes have a slower 100m time than olympians. 
+
+```{r}
+knitr::kable(hundred_m[[2]] %>% mutate(athlete_type = ifelse(athlete_type == "decathlete", "Decathlete", "Olympian")) %>% rename(`Athlete Type` = athlete_type, Mean = mean, `Std Dev` = sd, `Sample Size` = n), digits = 3, caption = "Summary of 100m sprint time for decathletes and olympians.")
+```
+
 ```{r}
 hundred_m[[4]]
 ```
 
 ## Step 4 - Conclusion
 
-The resulting p-value is far smaller than our significance level (0.05). This means we can strongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the Olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and Olympic sprinters is more than two seconds. This probably isn't a surprising result, winning an Olympic medal in the 100m sprint is extremely difficult and we'd expect no other cohort to compare. 
+The resulting p-value (<0.001) is far smaller than our significance level (0.05). This means we can strongly reject $H_0$ in favour of $H_1$ and conclude that the decathletes are significantly slower at running the 100m than the Olympic sprinters. The 95% confidence interval suggests the true difference in 100m time between decathletes and Olympic sprinters is more than two seconds. This probably isn't a surprising result, winning an Olympic medal in the 100m sprint is extremely difficult and we'd expect no other cohort to compare. 
 
 So can we conclude that King Gustav was wrong when he declared Jim Thorpe the "greatest athlete in the world"? Well, sprinting is just one area of the decathlon, so let's perform a similar test for two completely different decathlon events; High jump (jumping) and Discus (throwing).
 
@@ -348,7 +349,7 @@ Using the same hypothesis and significance level as above, we get the following 
 knitr::kable(
   tibble(
   Event = c("Discus", "High Jump"),
-  `p-value (3dp)` = c(substr(format(discus[[4]]$p.value, scientific = F), 1, 5), substr(format(high_jump[[4]]$p.value, scientific = F), 1, 5)),
+  `p-value (3dp)` = c("<0.001", "<0.001"),
   `Lower Conf Int` = c(discus[[4]]$conf.int[1], high_jump[[4]]$conf.int[1]),
        `Upper Conf Int` = c(discus[[4]]$conf.int[2], high_jump[[4]]$conf.int[2]) %>% round(3)
        )
@@ -417,7 +418,7 @@ kruskal_res
 
 ## Step 4 - Conclusion
 
-Our test statistic (`r round(kruskal_res[[1]][[1]], 3)`) greatly exceeds our critical value (12.592) which means we can strongly reject $H_0$ in favour of $H_1$. This is also confirmed by our p-value being far smaller than our significance level of 0.05. We can interpret this as at least two continents show a significant difference in points scored. This means that at least one continent is better than one other continent. But we can't conclude yet which continents these are. For that we have to perform post hoc tests.
+Our test statistic (`r round(kruskal_res[[1]][[1]], 3)`) greatly exceeds our critical value (12.592) which means we can strongly reject $H_0$ in favour of $H_1$. This is also confirmed by our p-value (<0.001) being far smaller than our significance level of 0.05. We can interpret this as at least two continents show a significant difference in points scored. This means that at least one continent is better than one other continent. But we can't conclude yet which continents these are. For that we have to perform post hoc tests.
 
 ## Step 5 - Post hoc tests
 
@@ -455,6 +456,8 @@ The second question looked at which continent produced the best decathletes. To 
 
 A larger sample size for the Olympic data would likely have improved the analysis. Due to the proportionately smaller Olympic data it meant it was hard to verify important assumptions needed for the t-test. For example that both samples come from populations with equal variance.
 
+In future study I would have like to investigate where a decathlete should best focus their resource to maximise points scored. It was discussed briefly in Figure \ref{fig:points_box} that decathletes yielded higher points for the running events. It would be interesting to drill deeper into this to investigate if these are the events that are easiest to score points in. If so a coach could use this information to take a high performing runner and turn them into a succesful decathlete. 
+
 \newpage
 
 # References
@@ -471,7 +474,7 @@ Wikipedia. 2019. Jim Thorpe. Available at: https://en.wikipedia.org/wiki/Jim_Tho
 
 # Appendices
 
-## Apendix A
+## Appendix A
 
 ```{r}
 glimpse(original_decathlon)
